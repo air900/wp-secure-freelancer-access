@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class RPA_Post_Access
- * Проверяет права доступа при попытке открыть редактор конкретной записи.
+ * Checks access rights when attempting to open the post editor.
  */
 class RPA_Post_Access {
 
@@ -55,7 +55,11 @@ class RPA_Post_Access {
 
 		if ( ! $is_allowed ) {
 			$this->log_access_attempt( $user_id, $post_id );
-			wp_die( 'У вас нет прав на редактирование этой записи.', 'Доступ запрещен', array( 'response' => 403 ) );
+			wp_die(
+				esc_html__( 'You do not have permission to edit this content.', 'restricted-pages-access' ),
+				esc_html__( 'Access Denied', 'restricted-pages-access' ),
+				array( 'response' => 403 )
+			);
 		}
 	}
 

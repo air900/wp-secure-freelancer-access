@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Restricted Pages Access
- * Description: Ограничение доступа редакторов к конкретным страницам и записям.
+ * Description: Restrict editor access to specific pages and posts in WordPress admin.
  * Version: 1.0.0
- * Author: Gemini Code Assist
+ * Author: air900
  * Text Domain: restricted-pages-access
  * Domain Path: /languages
  */
@@ -23,6 +23,13 @@ require_once RPA_PLUGIN_DIR . 'includes/class-user-meta-handler.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-access-filter.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-post-access.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-admin-page.php';
+
+// Загрузка текстового домена для локализации
+add_action( 'plugins_loaded', 'rpa_load_textdomain' );
+
+function rpa_load_textdomain() {
+	load_plugin_textdomain( 'restricted-pages-access', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
 
 // Инициализация при загрузке плагинов
 add_action( 'plugins_loaded', function() {
