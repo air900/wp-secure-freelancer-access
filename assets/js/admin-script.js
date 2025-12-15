@@ -105,36 +105,85 @@
 		const searchInputs = document.querySelectorAll('.rpa-search-input');
 		searchInputs.forEach(function(input) {
 			input.addEventListener('input', function() {
-				const searchTerm = this.value.toLowerCase();
 				const targetType = this.getAttribute('data-target');
-				filterItems(targetType, searchTerm);
+				applyAllFilters(targetType);
 			});
 		});
 	}
 
 	/**
-	 * Filter items by search term
+	 * Apply all filters together (search + status + visibility)
 	 */
-	function filterItems(targetType, searchTerm) {
+	function applyAllFilters(targetType) {
 		const container = document.querySelector('[data-content-type="' + targetType + '"]');
 		if (!container) return;
 
+		// Get current filter values
+		const searchInput = document.querySelector('.rpa-search-input[data-target="' + targetType + '"]');
+		const statusSelect = document.querySelector('.rpa-status-filter[data-target="' + targetType + '"]');
+		const visibilitySelect = document.querySelector('.rpa-visibility-filter[data-target="' + targetType + '"]');
+
+		const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+		const selectedStatus = statusSelect ? statusSelect.value.trim().toLowerCase() : 'all';
+		const visibilityFilter = visibilitySelect ? visibilitySelect.value : 'all';
+
 		const labels = container.querySelectorAll('label');
 		let visibleCount = 0;
+		let totalCount = labels.length;
 
 		labels.forEach(function(label) {
-			// Поиск по названию и slug
-			const title = label.getAttribute('data-title') || '';
-			const slug = label.getAttribute('data-slug') || '';
+			let isVisible = true;
 
-			// Проверяем вхождение в название или slug
-			const isVisible = title.includes(searchTerm) || slug.includes(searchTerm);
+			// Apply search filter
+			if (searchTerm) {
+				const title = label.getAttribute('data-title') || '';
+				const slug = label.getAttribute('data-slug') || '';
+				isVisible = isVisible && (title.includes(searchTerm) || slug.includes(searchTerm));
+			}
+
+			// Apply status filter
+			if (selectedStatus !== 'all') {
+				const itemStatus = (label.getAttribute('data-status') || '').trim().toLowerCase();
+				isVisible = isVisible && (itemStatus === selectedStatus);
+			}
+
+			// Apply visibility filter (selected/unselected)
+			if (visibilityFilter !== 'all') {
+				const checkbox = label.querySelector('input[type="checkbox"]');
+				if (visibilityFilter === 'selected') {
+					isVisible = isVisible && checkbox && checkbox.checked;
+				} else if (visibilityFilter === 'unselected') {
+					isVisible = isVisible && checkbox && !checkbox.checked;
+				}
+			}
 
 			label.style.display = isVisible ? 'block' : 'none';
 			if (isVisible) visibleCount++;
 		});
 
+		// Show "no results" message if nothing is visible
+		showNoResultsMessage(container, visibleCount, totalCount);
 		updateVisibleCount(targetType, visibleCount);
+	}
+
+	/**
+	 * Show or hide "no results" message
+	 */
+	function showNoResultsMessage(container, visibleCount, totalCount) {
+		// Remove existing message
+		let existingMessage = container.querySelector('.rpa-no-results');
+		if (existingMessage) {
+			existingMessage.remove();
+		}
+
+		// Show message if no results
+		if (visibleCount === 0 && totalCount > 0) {
+			const message = document.createElement('p');
+			message.className = 'rpa-no-results';
+			message.style.cssText = 'text-align: center; padding: 20px; color: #646970; font-style: italic;';
+			message.textContent = 'No items match the current filters. Try changing the search term or filter options.';
+			container.appendChild(message);
+		}
 	}
 
 	/**
@@ -145,36 +194,11 @@
 		statusSelects.forEach(function(select) {
 			select.addEventListener('change', function() {
 				const targetType = this.getAttribute('data-target');
-				const selectedStatus = this.value;
-				filterByStatus(targetType, selectedStatus);
+				applyAllFilters(targetType);
 			});
 		});
 	}
 
-	/**
-	 * Filter items by status
-	 */
-	function filterByStatus(targetType, status) {
-		const container = document.querySelector('[data-content-type="' + targetType + '"]');
-		if (!container) return;
-
-		const labels = container.querySelectorAll('label');
-		let visibleCount = 0;
-
-		labels.forEach(function(label) {
-			const statusSpan = label.querySelector('.rpa-content-status');
-			let isVisible = true;
-
-			if (status !== 'all' && statusSpan) {
-				isVisible = statusSpan.textContent.includes(status);
-			}
-
-			label.style.display = isVisible ? 'block' : 'none';
-			if (isVisible) visibleCount++;
-		});
-
-		updateVisibleCount(targetType, visibleCount);
-	}
 
 	/**
 	 * Initialize sort buttons
@@ -287,38 +311,11 @@
 		visibilitySelects.forEach(function(select) {
 			select.addEventListener('change', function() {
 				const targetType = this.getAttribute('data-target');
-				const filterType = this.value;
-				filterByVisibility(targetType, filterType);
+				applyAllFilters(targetType);
 			});
 		});
 	}
 
-	/**
-	 * Filter by visibility (all/selected/unselected)
-	 */
-	function filterByVisibility(targetType, filterType) {
-		const container = document.querySelector('[data-content-type="' + targetType + '"]');
-		if (!container) return;
-
-		const labels = container.querySelectorAll('label');
-		let visibleCount = 0;
-
-		labels.forEach(function(label) {
-			const checkbox = label.querySelector('input[type="checkbox"]');
-			let isVisible = true;
-
-			if (filterType === 'selected') {
-				isVisible = checkbox && checkbox.checked;
-			} else if (filterType === 'unselected') {
-				isVisible = checkbox && !checkbox.checked;
-			}
-
-			label.style.display = isVisible ? 'block' : 'none';
-			if (isVisible) visibleCount++;
-		});
-
-		updateVisibleCount(targetType, visibleCount);
-	}
 
 	/**
 	 * Initialize unsaved changes warning

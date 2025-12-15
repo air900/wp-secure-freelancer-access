@@ -321,7 +321,8 @@ class RPA_Admin_Page {
 						<?php else : ?>
 							<?php foreach ( $all_pages as $page ) : ?>
 								<label data-title="<?php echo esc_attr( strtolower( $page->post_title ) ); ?>"
-									   data-slug="<?php echo esc_attr( $page->post_name ); ?>"
+									   data-slug="<?php echo esc_attr( strtolower( $page->post_name ) ); ?>"
+									   data-status="<?php echo esc_attr( $page->post_status ); ?>"
 									   data-date-created="<?php echo esc_attr( strtotime( $page->post_date ) ); ?>"
 									   data-date-modified="<?php echo esc_attr( strtotime( $page->post_modified ) ); ?>">
 									<input type="checkbox" name="allowed_pages[]" value="<?php echo esc_attr( $page->ID ); ?>" <?php checked( in_array( $page->ID, $allowed_pages ) ); ?>>
@@ -403,7 +404,8 @@ class RPA_Admin_Page {
 						<?php else : ?>
 							<?php foreach ( $all_posts as $post ) : ?>
 								<label data-title="<?php echo esc_attr( strtolower( $post->post_title ? $post->post_title : '(No title)' ) ); ?>"
-									   data-slug="<?php echo esc_attr( $post->post_name ); ?>"
+									   data-slug="<?php echo esc_attr( strtolower( $post->post_name ) ); ?>"
+									   data-status="<?php echo esc_attr( $post->post_status ); ?>"
 									   data-date-created="<?php echo esc_attr( strtotime( $post->post_date ) ); ?>"
 									   data-date-modified="<?php echo esc_attr( strtotime( $post->post_modified ) ); ?>">
 									<input type="checkbox" name="allowed_posts[]" value="<?php echo esc_attr( $post->ID ); ?>" <?php checked( in_array( $post->ID, $allowed_posts ) ); ?>>
