@@ -21,6 +21,7 @@
 		initVisibilityFilters();
 		initUnsavedChangesWarning();
 		initCheckboxChangeTracking();
+		initSelectedSummary();
 	});
 
 	/**
@@ -122,8 +123,12 @@
 		let visibleCount = 0;
 
 		labels.forEach(function(label) {
-			const text = label.textContent.toLowerCase();
-			const isVisible = text.includes(searchTerm);
+			// Поиск по названию и slug
+			const title = label.getAttribute('data-title') || '';
+			const slug = label.getAttribute('data-slug') || '';
+
+			// Проверяем вхождение в название или slug
+			const isVisible = title.includes(searchTerm) || slug.includes(searchTerm);
 
 			label.style.display = isVisible ? 'block' : 'none';
 			if (isVisible) visibleCount++;
@@ -182,6 +187,11 @@
 				const sortBy = this.value;
 				sortItems(targetType, sortBy);
 			});
+
+			// Apply default sort on page load
+			const targetType = select.getAttribute('data-target');
+			const defaultSort = select.value; // 'date-created' from HTML
+			sortItems(targetType, defaultSort);
 		});
 	}
 
@@ -200,9 +210,19 @@
 				const idB = parseInt(b.textContent.match(/\[(\d+)\]/)[1]);
 				return idA - idB;
 			} else if (sortBy === 'title') {
-				const titleA = a.textContent.split(']')[1].toLowerCase();
-				const titleB = b.textContent.split(']')[1].toLowerCase();
+				const titleA = a.getAttribute('data-title') || '';
+				const titleB = b.getAttribute('data-title') || '';
 				return titleA.localeCompare(titleB);
+			} else if (sortBy === 'date-created') {
+				// Newest first (descending)
+				const dateA = parseInt(a.getAttribute('data-date-created') || '0');
+				const dateB = parseInt(b.getAttribute('data-date-created') || '0');
+				return dateB - dateA;
+			} else if (sortBy === 'date-modified') {
+				// Newest first (descending)
+				const dateA = parseInt(a.getAttribute('data-date-modified') || '0');
+				const dateB = parseInt(b.getAttribute('data-date-modified') || '0');
+				return dateB - dateA;
 			}
 			return 0;
 		});
@@ -349,6 +369,141 @@
 		if (indicator) {
 			indicator.style.display = 'block';
 		}
+	}
+
+	/**
+	 * Initialize selected content summary (badges)
+	 */
+	function initSelectedSummary() {
+		updateSelectedSummary();
+
+		// Update summary when checkboxes change
+		document.querySelectorAll('input[type="checkbox"][name^="allowed_"]').forEach(function(checkbox) {
+			checkbox.addEventListener('change', updateSelectedSummary);
+		});
+	}
+
+	/**
+	 * Update selected content summary with badges
+	 */
+	function updateSelectedSummary() {
+		const pagesContainer = document.querySelector('[data-content-type="allowed_pages"]');
+		const postsContainer = document.querySelector('[data-content-type="allowed_posts"]');
+
+		let selectedPages = [];
+		let selectedPosts = [];
+
+		// Collect selected pages
+		if (pagesContainer) {
+			pagesContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(function(checkbox) {
+				const label = checkbox.closest('label');
+				const titleText = label.querySelector('span:first-of-type')?.textContent || '';
+				const title = titleText.replace(/^\[\d+\]\s*/, '').trim();
+				selectedPages.push({
+					id: checkbox.value,
+					title: title || 'Page #' + checkbox.value
+				});
+			});
+		}
+
+		// Collect selected posts
+		if (postsContainer) {
+			postsContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(function(checkbox) {
+				const label = checkbox.closest('label');
+				const titleText = label.querySelector('span:first-of-type')?.textContent || '';
+				const title = titleText.replace(/^\[\d+\]\s*/, '').trim();
+				selectedPosts.push({
+					id: checkbox.value,
+					title: title || 'Post #' + checkbox.value
+				});
+			});
+		}
+
+		// Update counts
+		const pagesCount = document.getElementById('rpa-badge-pages-count');
+		const postsCount = document.getElementById('rpa-badge-posts-count');
+		const totalCount = document.getElementById('rpa-selected-total');
+
+		if (pagesCount) pagesCount.textContent = selectedPages.length;
+		if (postsCount) postsCount.textContent = selectedPosts.length;
+		if (totalCount) totalCount.textContent = selectedPages.length + selectedPosts.length;
+
+		// Show/hide summary section
+		const summary = document.getElementById('rpa-selected-summary');
+		if (summary) {
+			if (selectedPages.length > 0 || selectedPosts.length > 0) {
+				summary.style.display = 'block';
+			} else {
+				summary.style.display = 'none';
+			}
+		}
+
+		// Update badges for pages
+		const badgesPages = document.getElementById('rpa-badges-pages');
+		if (badgesPages) {
+			badgesPages.innerHTML = '';
+			if (selectedPages.length === 0) {
+				badgesPages.innerHTML = '<span style="color: #888; font-style: italic;">No pages selected</span>';
+			} else {
+				selectedPages.forEach(function(item) {
+					const badge = createBadge(item, 'allowed_pages');
+					badgesPages.appendChild(badge);
+				});
+			}
+		}
+
+		// Update badges for posts
+		const badgesPosts = document.getElementById('rpa-badges-posts');
+		if (badgesPosts) {
+			badgesPosts.innerHTML = '';
+			if (selectedPosts.length === 0) {
+				badgesPosts.innerHTML = '<span style="color: #888; font-style: italic;">No posts selected</span>';
+			} else {
+				selectedPosts.forEach(function(item) {
+					const badge = createBadge(item, 'allowed_posts');
+					badgesPosts.appendChild(badge);
+				});
+			}
+		}
+	}
+
+	/**
+	 * Create badge element
+	 */
+	function createBadge(item, targetType) {
+		const badge = document.createElement('span');
+		badge.className = 'rpa-badge';
+		badge.setAttribute('data-id', item.id);
+
+		// Title text
+		const titleSpan = document.createElement('span');
+		titleSpan.className = 'rpa-badge-title';
+		titleSpan.textContent = item.title + ' #' + item.id;
+		badge.appendChild(titleSpan);
+
+		// Remove button (×)
+		const removeBtn = document.createElement('button');
+		removeBtn.type = 'button';
+		removeBtn.className = 'rpa-badge-remove';
+		removeBtn.innerHTML = '&times;';
+		removeBtn.setAttribute('aria-label', 'Remove');
+		removeBtn.addEventListener('click', function(e) {
+			e.preventDefault();
+			// Find and uncheck the checkbox
+			const container = document.querySelector('[data-content-type="' + targetType + '"]');
+			if (container) {
+				const checkbox = container.querySelector('input[value="' + item.id + '"]');
+				if (checkbox) {
+					checkbox.checked = false;
+					updateCounter(targetType);
+					updateSelectedSummary();
+					markAsUnsaved();
+				}
+			}
+		});
+		badge.appendChild(removeBtn);
+
+		return badge;
 	}
 
 })();

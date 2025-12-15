@@ -233,6 +233,30 @@ class RPA_Admin_Page {
 			<?php esc_html_e( 'You have unsaved changes', 'restricted-pages-access' ); ?>
 		</div>
 
+		<!-- Selected Content Summary (Badges) -->
+		<div id="rpa-selected-summary" style="display: none; margin-bottom: 20px;">
+			<h3>
+				<?php esc_html_e( 'Currently Selected', 'restricted-pages-access' ); ?>
+				(<span id="rpa-selected-total">0</span>)
+			</h3>
+
+			<!-- Pages Badges -->
+			<div class="rpa-badge-group">
+				<strong><?php esc_html_e( 'Pages', 'restricted-pages-access' ); ?> (<span id="rpa-badge-pages-count">0</span>):</strong>
+				<div id="rpa-badges-pages" class="rpa-badges-container">
+					<!-- Badges added by JavaScript -->
+				</div>
+			</div>
+
+			<!-- Posts Badges -->
+			<div class="rpa-badge-group">
+				<strong><?php esc_html_e( 'Posts', 'restricted-pages-access' ); ?> (<span id="rpa-badge-posts-count">0</span>):</strong>
+				<div id="rpa-badges-posts" class="rpa-badges-container">
+					<!-- Badges added by JavaScript -->
+				</div>
+			</div>
+		</div>
+
 		<form method="post" action="">
 			<?php wp_nonce_field( 'rpa_save_access', 'rpa_nonce' ); ?>
 			<input type="hidden" name="rpa_action" value="save_access">
@@ -271,8 +295,10 @@ class RPA_Admin_Page {
 							<div class="rpa-filter-group">
 								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
 								<select class="rpa-sort-select" data-target="allowed_pages">
+									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'restricted-pages-access' ); ?></option>
+									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'restricted-pages-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'restricted-pages-access' ); ?></option>
 									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
-									<option value="title"><?php esc_html_e( 'Title', 'restricted-pages-access' ); ?></option>
 								</select>
 							</div>
 
@@ -294,7 +320,10 @@ class RPA_Admin_Page {
 							<p class="rpa-empty-state"><?php esc_html_e( 'No pages found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_pages as $page ) : ?>
-								<label>
+								<label data-title="<?php echo esc_attr( strtolower( $page->post_title ) ); ?>"
+									   data-slug="<?php echo esc_attr( $page->post_name ); ?>"
+									   data-date-created="<?php echo esc_attr( strtotime( $page->post_date ) ); ?>"
+									   data-date-modified="<?php echo esc_attr( strtotime( $page->post_modified ) ); ?>">
 									<input type="checkbox" name="allowed_pages[]" value="<?php echo esc_attr( $page->ID ); ?>" <?php checked( in_array( $page->ID, $allowed_pages ) ); ?>>
 									<span>[<?php echo esc_html( $page->ID ); ?>] <?php echo esc_html( $page->post_title ); ?></span>
 									<span class="rpa-content-status">(<?php echo esc_html( $page->post_status ); ?>)</span>
@@ -348,8 +377,10 @@ class RPA_Admin_Page {
 							<div class="rpa-filter-group">
 								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
 								<select class="rpa-sort-select" data-target="allowed_posts">
+									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'restricted-pages-access' ); ?></option>
+									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'restricted-pages-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'restricted-pages-access' ); ?></option>
 									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
-									<option value="title"><?php esc_html_e( 'Title', 'restricted-pages-access' ); ?></option>
 								</select>
 							</div>
 
@@ -371,7 +402,10 @@ class RPA_Admin_Page {
 							<p class="rpa-empty-state"><?php esc_html_e( 'No posts found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_posts as $post ) : ?>
-								<label>
+								<label data-title="<?php echo esc_attr( strtolower( $post->post_title ? $post->post_title : '(No title)' ) ); ?>"
+									   data-slug="<?php echo esc_attr( $post->post_name ); ?>"
+									   data-date-created="<?php echo esc_attr( strtotime( $post->post_date ) ); ?>"
+									   data-date-modified="<?php echo esc_attr( strtotime( $post->post_modified ) ); ?>">
 									<input type="checkbox" name="allowed_posts[]" value="<?php echo esc_attr( $post->ID ); ?>" <?php checked( in_array( $post->ID, $allowed_posts ) ); ?>>
 									<span>[<?php echo esc_html( $post->ID ); ?>] <?php echo esc_html( $post->post_title ? $post->post_title : __( '(No title)', 'restricted-pages-access' ) ); ?></span>
 									<span class="rpa-content-status">(<?php echo esc_html( $post->post_status ); ?>)</span>
@@ -400,6 +434,17 @@ class RPA_Admin_Page {
 				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'restricted-pages-access' ); ?>">
 			</p>
 		</form>
+
+		<p class="rpa-version-info" style="margin-top: 20px; color: #646970; font-size: 12px;">
+			<?php
+			echo esc_html(
+				sprintf(
+					__( 'Restricted Pages Access Plugin - Version %s', 'restricted-pages-access' ),
+					RPA_VERSION
+				)
+			);
+			?>
+		</p>
 		<?php
 	}
 
