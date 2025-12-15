@@ -203,7 +203,9 @@ class RPA_Admin_Page {
 		$allowed_posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
 
 		// Get all pages and posts
-		$all_pages = get_pages();
+		$all_pages = get_pages( array(
+			'post_status' => array( 'publish', 'draft', 'pending', 'future', 'private' )
+		) );
 		$all_posts = get_posts( array(
 			'numberposts' => -1,
 			'post_type' => 'post',
