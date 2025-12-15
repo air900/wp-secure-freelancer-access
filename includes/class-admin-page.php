@@ -228,6 +228,11 @@ class RPA_Admin_Page {
 			?>
 		</h2>
 
+		<!-- Unsaved Changes Indicator -->
+		<div class="rpa-unsaved-indicator">
+			<?php esc_html_e( 'You have unsaved changes', 'restricted-pages-access' ); ?>
+		</div>
+
 		<form method="post" action="">
 			<?php wp_nonce_field( 'rpa_save_access', 'rpa_nonce' ); ?>
 			<input type="hidden" name="rpa_action" value="save_access">
@@ -237,23 +242,74 @@ class RPA_Admin_Page {
 
 				<!-- Pages Block -->
 				<div class="rpa-content-block">
-					<h3><?php esc_html_e( 'Pages', 'restricted-pages-access' ); ?></h3>
-					<div class="rpa-content-list">
+					<h3>
+						<?php esc_html_e( 'Pages', 'restricted-pages-access' ); ?>
+						<span class="rpa-counter" data-target="allowed_pages">0 / 0</span>
+					</h3>
+
+					<!-- Search and Filters -->
+					<div class="rpa-controls">
+						<!-- Search -->
+						<div class="rpa-search-wrapper">
+							<input type="search" class="rpa-search-input" data-target="allowed_pages" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'restricted-pages-access' ); ?>">
+						</div>
+
+						<!-- Filters Row -->
+						<div class="rpa-filters-row">
+							<!-- Status Filter -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Status', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-status-filter" data-target="allowed_pages">
+									<option value="all"><?php esc_html_e( 'All Statuses', 'restricted-pages-access' ); ?></option>
+									<option value="publish"><?php esc_html_e( 'Published', 'restricted-pages-access' ); ?></option>
+									<option value="draft"><?php esc_html_e( 'Draft', 'restricted-pages-access' ); ?></option>
+									<option value="pending"><?php esc_html_e( 'Pending', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+
+							<!-- Sort -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-sort-select" data-target="allowed_pages">
+									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+
+							<!-- Show -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Show', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-visibility-filter" data-target="allowed_pages">
+									<option value="all"><?php esc_html_e( 'All', 'restricted-pages-access' ); ?></option>
+									<option value="selected"><?php esc_html_e( 'Selected Only', 'restricted-pages-access' ); ?></option>
+									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<!-- Content List -->
+					<div class="rpa-content-list" data-content-type="allowed_pages">
 						<?php if ( empty( $all_pages ) ) : ?>
 							<p class="rpa-empty-state"><?php esc_html_e( 'No pages found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_pages as $page ) : ?>
 								<label>
 									<input type="checkbox" name="allowed_pages[]" value="<?php echo esc_attr( $page->ID ); ?>" <?php checked( in_array( $page->ID, $allowed_pages ) ); ?>>
-									[<?php echo esc_html( $page->ID ); ?>] <?php echo esc_html( $page->post_title ); ?>
+									<span>[<?php echo esc_html( $page->ID ); ?>] <?php echo esc_html( $page->post_title ); ?></span>
 									<span class="rpa-content-status">(<?php echo esc_html( $page->post_status ); ?>)</span>
 								</label>
 							<?php endforeach; ?>
 						<?php endif; ?>
 					</div>
+
+					<!-- Action Buttons -->
 					<div class="rpa-button-group">
 						<button type="button" class="button rpa-select-all" data-target="allowed_pages">
 							<?php esc_html_e( 'Select All', 'restricted-pages-access' ); ?>
+						</button>
+						<button type="button" class="button rpa-select-published" data-target="allowed_pages">
+							<?php esc_html_e( 'Select Published', 'restricted-pages-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-deselect-all" data-target="allowed_pages">
 							<?php esc_html_e( 'Deselect All', 'restricted-pages-access' ); ?>
@@ -263,23 +319,74 @@ class RPA_Admin_Page {
 
 				<!-- Posts Block -->
 				<div class="rpa-content-block">
-					<h3><?php esc_html_e( 'Posts', 'restricted-pages-access' ); ?></h3>
-					<div class="rpa-content-list">
+					<h3>
+						<?php esc_html_e( 'Posts', 'restricted-pages-access' ); ?>
+						<span class="rpa-counter" data-target="allowed_posts">0 / 0</span>
+					</h3>
+
+					<!-- Search and Filters -->
+					<div class="rpa-controls">
+						<!-- Search -->
+						<div class="rpa-search-wrapper">
+							<input type="search" class="rpa-search-input" data-target="allowed_posts" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'restricted-pages-access' ); ?>">
+						</div>
+
+						<!-- Filters Row -->
+						<div class="rpa-filters-row">
+							<!-- Status Filter -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Status', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-status-filter" data-target="allowed_posts">
+									<option value="all"><?php esc_html_e( 'All Statuses', 'restricted-pages-access' ); ?></option>
+									<option value="publish"><?php esc_html_e( 'Published', 'restricted-pages-access' ); ?></option>
+									<option value="draft"><?php esc_html_e( 'Draft', 'restricted-pages-access' ); ?></option>
+									<option value="pending"><?php esc_html_e( 'Pending', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+
+							<!-- Sort -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-sort-select" data-target="allowed_posts">
+									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+
+							<!-- Show -->
+							<div class="rpa-filter-group">
+								<label><?php esc_html_e( 'Show', 'restricted-pages-access' ); ?></label>
+								<select class="rpa-visibility-filter" data-target="allowed_posts">
+									<option value="all"><?php esc_html_e( 'All', 'restricted-pages-access' ); ?></option>
+									<option value="selected"><?php esc_html_e( 'Selected Only', 'restricted-pages-access' ); ?></option>
+									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'restricted-pages-access' ); ?></option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<!-- Content List -->
+					<div class="rpa-content-list" data-content-type="allowed_posts">
 						<?php if ( empty( $all_posts ) ) : ?>
 							<p class="rpa-empty-state"><?php esc_html_e( 'No posts found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_posts as $post ) : ?>
 								<label>
 									<input type="checkbox" name="allowed_posts[]" value="<?php echo esc_attr( $post->ID ); ?>" <?php checked( in_array( $post->ID, $allowed_posts ) ); ?>>
-									[<?php echo esc_html( $post->ID ); ?>] <?php echo esc_html( $post->post_title ? $post->post_title : __( '(No title)', 'restricted-pages-access' ) ); ?>
+									<span>[<?php echo esc_html( $post->ID ); ?>] <?php echo esc_html( $post->post_title ? $post->post_title : __( '(No title)', 'restricted-pages-access' ) ); ?></span>
 									<span class="rpa-content-status">(<?php echo esc_html( $post->post_status ); ?>)</span>
 								</label>
 							<?php endforeach; ?>
 						<?php endif; ?>
 					</div>
+
+					<!-- Action Buttons -->
 					<div class="rpa-button-group">
 						<button type="button" class="button rpa-select-all" data-target="allowed_posts">
 							<?php esc_html_e( 'Select All', 'restricted-pages-access' ); ?>
+						</button>
+						<button type="button" class="button rpa-select-published" data-target="allowed_posts">
+							<?php esc_html_e( 'Select Published', 'restricted-pages-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-deselect-all" data-target="allowed_posts">
 							<?php esc_html_e( 'Deselect All', 'restricted-pages-access' ); ?>
