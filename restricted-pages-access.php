@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Restricted Pages Access
  * Description: Restrict editor access to specific pages and posts in WordPress admin.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: air900
  * Text Domain: restricted-pages-access
  * Domain Path: /languages
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Константы плагина
 define( 'RPA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RPA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'RPA_VERSION', '1.0.0' );
+define( 'RPA_VERSION', '1.1.0' );
 
 // Подключение классов
 require_once RPA_PLUGIN_DIR . 'includes/class-user-meta-handler.php';
