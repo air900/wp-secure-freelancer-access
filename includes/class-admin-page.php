@@ -322,8 +322,8 @@ class RPA_Admin_Page {
 							<p class="rpa-empty-state"><?php esc_html_e( 'No pages found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_pages as $page ) : ?>
-								<label data-title="<?php echo esc_attr( strtolower( $page->post_title ) ); ?>"
-									   data-slug="<?php echo esc_attr( strtolower( $page->post_name ) ); ?>"
+								<label data-title="<?php echo esc_attr( mb_strtolower( $page->post_title ) ); ?>"
+									   data-slug="<?php echo esc_attr( mb_strtolower( $page->post_name ) ); ?>"
 									   data-status="<?php echo esc_attr( $page->post_status ); ?>"
 									   data-date-created="<?php echo esc_attr( strtotime( $page->post_date ) ); ?>"
 									   data-date-modified="<?php echo esc_attr( strtotime( $page->post_modified ) ); ?>">
@@ -405,8 +405,8 @@ class RPA_Admin_Page {
 							<p class="rpa-empty-state"><?php esc_html_e( 'No posts found.', 'restricted-pages-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_posts as $post ) : ?>
-								<label data-title="<?php echo esc_attr( strtolower( $post->post_title ? $post->post_title : '(No title)' ) ); ?>"
-									   data-slug="<?php echo esc_attr( strtolower( $post->post_name ) ); ?>"
+								<label data-title="<?php echo esc_attr( mb_strtolower( $post->post_title ? $post->post_title : '(No title)' ) ); ?>"
+									   data-slug="<?php echo esc_attr( mb_strtolower( $post->post_name ) ); ?>"
 									   data-status="<?php echo esc_attr( $post->post_status ); ?>"
 									   data-date-created="<?php echo esc_attr( strtotime( $post->post_date ) ); ?>"
 									   data-date-modified="<?php echo esc_attr( strtotime( $post->post_modified ) ); ?>">
