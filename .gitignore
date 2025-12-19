@@ -2,16 +2,48 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+._*
 
 # WordPress
 *.log
+wp-config.php
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # Temporary files
 *~
 .temp/
+tmp/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Test files
+test-*.php
+test-*.js
+tests/
+
+# Claude Code
+.claude/
+
+# Debug
+/debug/
+
+# Build artifacts
+*.zip
+/dist/
+/build/
+
+# Development notes (may contain credentials)
+idea.md
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

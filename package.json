@@ -1,0 +1,23 @@
+{
+  "name": "wp-secure-freelancer-access",
+  "version": "1.0.0",
+  "description": "Плагин для WordPress, который позволяет ограничивать доступ пользователей с ролью **Editor** (Редактор) к конкретным страницам и записям в административной панели.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/air900/wp-secure-freelancer-access.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/air900/wp-secure-freelancer-access/issues"
+  },
+  "homepage": "https://github.com/air900/wp-secure-freelancer-access#readme",
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}
