@@ -47,7 +47,7 @@ This plugin allows administrators to configure exactly which pages and posts eac
 
 = How It Works =
 
-1. Go to `Settings → Content Access Restriction`
+1. Go to `Settings → Secure Freelancer Access`
 2. Select a user from the list
 3. Click "Edit Access"
 4. Check the pages and posts to allow
@@ -61,6 +61,17 @@ The editor will now only see the allowed items in admin!
 * Site owners with multiple editors
 * Projects requiring granular access control
 * Anyone who needs to limit content visibility for specific users
+
+= Development & Support =
+
+This plugin is developed on GitHub. You can:
+
+* Report bugs and issues
+* Request new features
+* Contribute code improvements
+* View the source code
+
+GitHub: [https://github.com/air900/wp-secure-freelancer-access](https://github.com/air900/wp-secure-freelancer-access)
 
 == Installation ==
 
