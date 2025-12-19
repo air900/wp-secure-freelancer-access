@@ -335,12 +335,12 @@ class RPA_Admin_Page {
 
 		echo '<table class="wp-list-table widefat fixed striped">';
 		echo '<thead><tr>';
+		echo '<th>' . esc_html__( 'Actions', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'User', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Role', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Access (Pages)', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Access (Posts)', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Schedule', 'secure-freelancer-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Actions', 'secure-freelancer-access' ) . '</th>';
 		echo '</tr></thead>';
 		echo '<tbody>';
 
@@ -378,12 +378,12 @@ class RPA_Admin_Page {
 			}
 
 			echo '<tr' . ( ! $is_active ? ' class="rpa-row-expired"' : '' ) . '>';
+			echo '<td><a href="' . esc_url( $edit_link ) . '" class="button button-small">' . esc_html__( 'Edit Access', 'secure-freelancer-access' ) . '</a></td>';
 			echo '<td><strong>' . esc_html( $user->display_name ) . '</strong><br><small>' . esc_html( $user->user_login ) . '</small></td>';
 			echo '<td><span class="rpa-role-badge">' . esc_html( $role_name ) . '</span></td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_pages ) . '</span></td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_posts ) . '</span></td>';
 			echo '<td><span class="' . esc_attr( $schedule_class ) . '">' . esc_html( $schedule_text ) . '</span></td>';
-			echo '<td><a href="' . esc_url( $edit_link ) . '" class="button button-small">' . esc_html__( 'Edit Access', 'secure-freelancer-access' ) . '</a></td>';
 			echo '</tr>';
 		}
 
@@ -1008,15 +1008,25 @@ class RPA_Admin_Page {
 					<table class="wp-list-table widefat fixed striped">
 						<thead>
 							<tr>
+								<th><?php esc_html_e( 'Actions', 'secure-freelancer-access' ); ?></th>
 								<th><?php esc_html_e( 'Name', 'secure-freelancer-access' ); ?></th>
 								<th><?php esc_html_e( 'Content', 'secure-freelancer-access' ); ?></th>
-								<th><?php esc_html_e( 'Actions', 'secure-freelancer-access' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php foreach ( $templates as $template_id => $template ) : ?>
 								<?php $summary = RPA_Access_Templates::get_template_summary( $template_id ); ?>
 								<tr>
+									<td>
+										<form method="post" action="" style="display: inline;">
+											<?php wp_nonce_field( 'rpa_delete_template', 'rpa_nonce' ); ?>
+											<input type="hidden" name="rpa_action" value="delete_template">
+											<input type="hidden" name="template_id" value="<?php echo esc_attr( $template_id ); ?>">
+											<button type="submit" class="button button-small" onclick="return confirm('<?php esc_attr_e( 'Delete this template?', 'secure-freelancer-access' ); ?>');">
+												<?php esc_html_e( 'Delete', 'secure-freelancer-access' ); ?>
+											</button>
+										</form>
+									</td>
 									<td>
 										<strong><?php echo esc_html( $template['name'] ); ?></strong>
 										<?php if ( ! empty( $template['description'] ) ) : ?>
@@ -1031,16 +1041,6 @@ class RPA_Admin_Page {
 										}
 										echo esc_html( implode( ', ', $summary_parts ) ?: '-' );
 										?>
-									</td>
-									<td>
-										<form method="post" action="" style="display: inline;">
-											<?php wp_nonce_field( 'rpa_delete_template', 'rpa_nonce' ); ?>
-											<input type="hidden" name="rpa_action" value="delete_template">
-											<input type="hidden" name="template_id" value="<?php echo esc_attr( $template_id ); ?>">
-											<button type="submit" class="button button-small" onclick="return confirm('<?php esc_attr_e( 'Delete this template?', 'secure-freelancer-access' ); ?>');">
-												<?php esc_html_e( 'Delete', 'secure-freelancer-access' ); ?>
-											</button>
-										</form>
 									</td>
 								</tr>
 							<?php endforeach; ?>

@@ -3,7 +3,7 @@ Contributors: air900
 Tags: permissions, roles, access control, editor, restrict
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -142,6 +142,9 @@ No. The plugin only works in the admin panel and doesn't affect the frontend. Al
 5. Access templates management
 
 == Changelog ==
+
+= 2.0.5 (2025-12-19) =
+* Moved Actions column to the beginning of tables for better UX
 
 = 2.0.4 (2025-12-19) =
 * Updated admin UI labels to match plugin name
