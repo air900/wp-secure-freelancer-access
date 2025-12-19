@@ -1,6 +1,6 @@
 === Secure Freelancer Access ===
 Contributors: air900
-Tags: permissions, roles, access control, editor, pages
+Tags: permissions, roles, access control, editor, restrict
 Requires at least: 5.8
 Tested up to: 6.9
 Stable tag: 2.0.3
@@ -8,184 +8,186 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Ограничение доступа редакторов к конкретным страницам и записям в админ-панели WordPress.
+Restrict editor access to specific pages and posts in WordPress admin.
 
 == Description ==
 
-**Secure Freelancer Access** — плагин для точечного управления доступом пользователей с ролью Editor к страницам и записям в административной панели WordPress.
+**Secure Freelancer Access** is a plugin for granular content access control in WordPress admin panel. Perfect for agencies working with freelancers who need access only to specific pages.
 
-= Проблема =
+= The Problem =
 
-По умолчанию пользователи с ролью Editor (Редактор) видят ВСЕ страницы и записи на сайте. Это создает проблемы, когда нужно дать доступ верстальщику или внешнему специалисту только к конкретным страницам.
+By default, users with Editor role can see ALL pages and posts on the site. This creates issues when you need to give a freelancer or external specialist access only to specific pages.
 
-= Решение =
+= The Solution =
 
-Плагин позволяет администратору настроить, какие именно страницы и записи видит каждый редактор:
-* В списках админ-панели отображаются только разрешенные элементы
-* Прямой доступ по URL к запрещенным страницам блокируется (403 Forbidden)
-* Ведется журнал попыток несанкционированного доступа
+This plugin allows administrators to configure exactly which pages and posts each editor can see:
 
-= Основные возможности =
+* Only allowed items appear in admin lists
+* Direct URL access to forbidden pages is blocked (403 Forbidden)
+* Access attempt logging for security audit
 
-* ✅ Ограничение доступа к конкретным страницам (Pages)
-* ✅ Ограничение доступа к конкретным записям (Posts)
-* ✅ Блокировка прямого доступа по URL (403 Forbidden)
-* ✅ Фильтрация выпадающих списков (родительские страницы)
-* ✅ Журнал попыток несанкционированного доступа
-* ✅ Удобный интерфейс с чекбоксами и поиском
-* ✅ Безопасность (nonce, валидация, санитизация)
-* ✅ Полностью протестирован (unit-тесты)
+= Key Features =
 
-= Как это работает =
+* Restrict access to specific Pages
+* Restrict access to specific Posts
+* Custom Post Types support
+* WooCommerce integration (Products, Orders, Coupons)
+* Elementor integration (Templates, Theme Builder)
+* Media Library filtering
+* Category and taxonomy-based access
+* Temporary access with date scheduling
+* Access templates for quick permission assignment
+* Copy permissions between users
+* Export/Import settings to JSON
+* WP-CLI commands
+* Dashboard widgets
+* Access attempt logging
+* Direct URL blocking (403 Forbidden)
+* Secure (nonce validation, input sanitization)
 
-1. Администратор заходит в `Параметры → Ограничение доступа`
-2. Выбирает пользователя с ролью Editor
-3. Отмечает разрешенные страницы и записи
-4. Сохраняет настройки
-5. Редактор видит в админке только разрешенные элементы!
+= How It Works =
 
-= Кому подходит =
+1. Go to `Settings → Content Access Restriction`
+2. Select a user from the list
+3. Click "Edit Access"
+4. Check the pages and posts to allow
+5. Save changes
 
-* Агентствам, работающим с внешними верстальщиками
-* Владельцам сайтов с несколькими редакторами
-* Проектам, где нужен гранулярный контроль доступа
-* Всем, кто хочет ограничить видимость контента для определенных пользователей
+The editor will now only see the allowed items in admin!
 
-= Техническая информация =
+= Who Is This For =
 
-Плагин использует три механизма защиты:
-1. Фильтр `pre_get_posts` — скрывает недоступные посты из списков
-2. Хук `load-post.php` — блокирует прямой доступ к редактору
-3. Фильтр `page_attributes_dropdown_pages_args` — фильтрует выпадающие списки
-
-Данные хранятся в `wp_usermeta` для каждого пользователя.
+* Agencies working with external developers
+* Site owners with multiple editors
+* Projects requiring granular access control
+* Anyone who needs to limit content visibility for specific users
 
 == Installation ==
 
-= Автоматическая установка =
+= Automatic Installation =
 
-1. Зайдите в `Плагины → Добавить новый`
-2. В поиске введите "Secure Freelancer Access"
-3. Нажмите "Установить" и затем "Активировать"
+1. Go to `Plugins → Add New`
+2. Search for "Secure Freelancer Access"
+3. Click "Install" then "Activate"
 
-= Ручная установка =
+= Manual Installation =
 
-1. Загрузите ZIP-архив плагина
-2. Распакуйте в папку `/wp-content/plugins/secure-freelancer-access/`
-3. Активируйте плагин в разделе `Плагины` админ-панели WordPress
+1. Download the plugin ZIP file
+2. Extract to `/wp-content/plugins/secure-freelancer-access/`
+3. Activate the plugin in WordPress admin
 
-= Настройка =
+= Configuration =
 
-1. После активации перейдите в `Параметры → Ограничение доступа`
-2. Выберите пользователя-редактора из списка
-3. Нажмите "Редактировать доступ"
-4. Отметьте галочками разрешенные страницы и записи
-5. Сохраните изменения
+1. After activation, go to `Settings → Content Access Restriction`
+2. Configure which roles to restrict in Settings tab
+3. Select a user and edit their access permissions
+4. Save changes
 
 == Frequently Asked Questions ==
 
-= Влияет ли плагин на администраторов? =
+= Does this affect administrators? =
 
-Нет. Администраторы (с правом `manage_options`) видят все страницы и записи без ограничений. Плагин применяется только к пользователям с ролью Editor и ниже.
+No. Administrators with `manage_options` capability see all content without restrictions. The plugin only applies to configured restricted roles.
 
-= Можно ли ограничить доступ к Custom Post Types? =
+= Can I restrict access to Custom Post Types? =
 
-В текущей версии (1.0.0) поддерживаются только стандартные Pages и Posts. Поддержка Custom Post Types планируется в следующих версиях.
+Yes! Version 2.0+ supports Custom Post Types. Enable them in Settings tab.
 
-= Что произойдет, если редактор попытается открыть запрещенную страницу по прямой ссылке? =
+= What happens if an editor tries to access a forbidden page directly? =
 
-Плагин заблокирует доступ и покажет сообщение "Доступ запрещен" (HTTP 403). Попытка доступа будет записана в журнал.
+The plugin blocks access and shows "Access Denied" (HTTP 403). The attempt is logged.
 
-= Где хранятся настройки доступа? =
+= Does this work with WooCommerce? =
 
-Данные хранятся в таблице `wp_usermeta`:
-* `rpa_allowed_pages` — массив ID разрешенных страниц
-* `rpa_allowed_posts` — массив ID разрешенных записей
+Yes! Version 2.0+ includes WooCommerce integration for Products, Orders, and Coupons. Enable in Settings.
 
-Журнал доступа хранится в `wp_options` как `rpa_access_logs`.
+= Does this work with Elementor? =
 
-= Работает ли плагин с Elementor? =
+Yes! Version 2.0+ includes Elementor integration for Templates and Theme Builder elements. Enable in Settings.
 
-Да, плагин совместим с Elementor и другими page builders.
+= Can I set temporary access? =
 
-= Как удалить все данные плагина? =
+Yes! You can set start and end dates for user access. Access automatically expires after the end date.
 
-При деактивации данные НЕ удаляются автоматически. Для полной очистки выполните в консоли:
+= Where is access data stored? =
+
+Data is stored in `wp_usermeta` for each user:
+* `rpa_allowed_pages` - array of allowed page IDs
+* `rpa_allowed_posts` - array of allowed post IDs
+
+Access logs are stored in `wp_options` as `rpa_access_logs`.
+
+= How do I remove all plugin data? =
+
+Data is NOT deleted on deactivation. For complete cleanup, run:
 
 `
 delete_metadata('user', 0, 'rpa_allowed_pages', '', true);
 delete_metadata('user', 0, 'rpa_allowed_posts', '', true);
 delete_option('rpa_access_logs');
+delete_option('rpa_settings');
+delete_option('rpa_templates');
 `
 
-= Плагин замедляет сайт? =
+= Does the plugin slow down the site? =
 
-Нет. Плагин работает только в админ-панели и не влияет на фронтенд. Все запросы оптимизированы.
+No. The plugin only works in the admin panel and doesn't affect the frontend. All queries are optimized.
 
 == Screenshots ==
 
-1. Главная страница - список всех редакторов с информацией о доступе
-2. Форма редактирования доступа для конкретного пользователя
-3. Журнал попыток несанкционированного доступа
-4. Редактор видит только разрешенные страницы в списке
-5. Сообщение об ошибке 403 при попытке доступа к запрещенной странице
+1. Main page - list of all restricted users with access info
+2. User access editing form with page/post selection
+3. Access attempt log
+4. Settings page with role and content type configuration
+5. Access templates management
 
 == Changelog ==
 
+= 2.0.3 (2025-12-19) =
+* Fixed Plugin Check errors
+* Added translators comments
+* Fixed date() to gmdate()
+* Improved input sanitization
+* Updated Tested up to: 6.9
+
+= 2.0.2 (2025-12-19) =
+* Complete v2.0 feature set
+* Media Library filtering
+* WooCommerce integration (Products, Orders, Coupons)
+* Elementor integration (Templates, Theme Builder)
+* Access Templates system
+* Copy permissions between users
+* Dashboard widgets
+* Export/Import to JSON
+* WP-CLI commands
+* Temporary access scheduling
+* Security improvements
+
+= 2.0.1 (2025-12-18) =
+* Settings page with role selection
+* REST API protection
+* Custom Post Types support
+* Taxonomy-based access
+* Multiple role support
+
 = 1.0.0 (2025-12-15) =
-* Первый публичный релиз
-* Базовая функциональность (MVP)
-* Ограничение доступа к страницам и записям
-* Административный интерфейс с чекбоксами
-* Журнал доступа с информацией о попытках
-* Полный набор unit-тестов
-* Безопасность согласно WordPress стандартам
+* Initial release
+* Basic functionality (MVP)
+* Page and post access restriction
+* Admin interface with checkboxes
+* Access logging
+* Security (nonce, validation, sanitization)
 
 == Upgrade Notice ==
 
+= 2.0.3 =
+Plugin Check fixes and improved compatibility with WordPress.org standards.
+
+= 2.0.2 =
+Major update with WooCommerce, Elementor, templates, export/import, and WP-CLI.
+
+= 2.0.1 =
+Added settings page, REST API protection, and Custom Post Types support.
+
 = 1.0.0 =
-Первый релиз плагина. Установите и настройте доступ для ваших редакторов!
-
-== Additional Info ==
-
-= Безопасность =
-
-Плагин следует всем рекомендациям WordPress по безопасности:
-* Nonce проверки для всех форм
-* Валидация и санитизация данных
-* Проверка прав доступа
-* Защита от SQL-инъекций
-* Защита от XSS
-
-= Производительность =
-
-* Минимальное влияние на производительность
-* Работает только в админ-панели
-* Оптимизированные запросы к БД
-* Не влияет на фронтенд сайта
-
-= Поддержка =
-
-Если у вас возникли вопросы или проблемы:
-1. Проверьте раздел FAQ
-2. Убедитесь в соответствии версий WordPress и PHP требованиям
-3. Включите режим отладки (`WP_DEBUG`)
-4. Создайте issue в репозитории
-
-= Дорожная карта =
-
-Версия 1.1 (планируется):
-* Локализация (русский/английский)
-* REST API фильтры
-* AJAX-поиск страниц
-* Кэширование
-
-Версия 1.2 (планируется):
-* Поддержка Custom Post Types
-* Групповое управление правами
-* Экспорт/импорт настроек
-
-Версия 2.0 (планируется):
-* Интеграция с Elementor
-* Ограничения по таксономиям
-* Временные ограничения доступа
+Initial release. Install and configure access for your editors!
