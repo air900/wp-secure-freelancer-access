@@ -1,4 +1,4 @@
-# 📦 Инструкция по установке плагина Restricted Pages Access
+# 📦 Инструкция по установке плагина Secure Freelancer Access
 
 ## Способ 1: Установка через ZIP-архив (Рекомендуется)
 
@@ -11,15 +11,15 @@
 cd "/Users/air900/Library/Mobile Documents/com~apple~CloudDocs/08 Code/VS + AI/wp-user-roles-restrict"
 
 # Создайте ZIP-архив (исключая лишние файлы)
-zip -r restricted-pages-access.zip . \
+zip -r secure-freelancer-access.zip . \
   -x "*.git*" \
   -x "idea.md" \
-  -x "test-restricted-pages-access.php" \
+  -x "test-secure-freelancer-access.php" \
   -x "INSTALLATION.md" \
   -x ".DS_Store"
 ```
 
-**Результат:** Будет создан файл `restricted-pages-access.zip`
+**Результат:** Будет создан файл `secure-freelancer-access.zip`
 
 ### Шаг 2: Загрузите в WordPress
 
@@ -27,7 +27,7 @@ zip -r restricted-pages-access.zip . \
 2. Перейдите: **Плагины → Добавить новый**
 3. Нажмите кнопку **"Загрузить плагин"** (вверху страницы)
 4. Нажмите **"Выберите файл"**
-5. Выберите созданный файл `restricted-pages-access.zip`
+5. Выберите созданный файл `secure-freelancer-access.zip`
 6. Нажмите **"Установить сейчас"**
 
 ### Шаг 3: Активируйте плагин
@@ -50,15 +50,15 @@ ssh user@yourserver.com
 cd /var/www/html/wp-content/plugins/
 
 # 3. Создайте папку плагина
-mkdir restricted-pages-access
+mkdir secure-freelancer-access
 
 # 4. Выйдите из SSH (Ctrl+D) и скопируйте файлы с локального компьютера
 scp -r "/Users/air900/Library/Mobile Documents/com~apple~CloudDocs/08 Code/VS + AI/wp-user-roles-restrict/"* \
-  user@yourserver.com:/var/www/html/wp-content/plugins/restricted-pages-access/
+  user@yourserver.com:/var/www/html/wp-content/plugins/secure-freelancer-access/
 
 # 5. Снова подключитесь к серверу и установите права
 ssh user@yourserver.com
-cd /var/www/html/wp-content/plugins/restricted-pages-access
+cd /var/www/html/wp-content/plugins/secure-freelancer-access
 chmod -R 755 .
 chown -R www-data:www-data .  # замените www-data на пользователя веб-сервера
 ```
@@ -77,21 +77,21 @@ chown -R www-data:www-data .  # замените www-data на пользова�
 
 4. **Создайте новую папку:**
    - Правая кнопка → "Создать директорию"
-   - Имя: `restricted-pages-access`
+   - Имя: `secure-freelancer-access`
 
 5. **Загрузите файлы:**
    - На локальном компьютере откройте папку проекта
    - Выделите все файлы КРОМЕ:
      - `.git/` (папка)
      - `idea.md`
-     - `test-restricted-pages-access.php`
+     - `test-secure-freelancer-access.php`
      - `INSTALLATION.md`
-   - Перетащите в папку `restricted-pages-access` на сервере
+   - Перетащите в папку `secure-freelancer-access` на сервере
 
 6. **Активируйте плагин:**
    - Зайдите в админ-панель WordPress
    - Перейдите: **Плагины**
-   - Найдите **Restricted Pages Access**
+   - Найдите **Secure Freelancer Access**
    - Нажмите **"Активировать"**
 
 ---
@@ -108,11 +108,11 @@ chown -R www-data:www-data .  # замените www-data на пользова�
 
 # 2. Скопируйте папку плагина
 cp -r "/Users/air900/Library/Mobile Documents/com~apple~CloudDocs/08 Code/VS + AI/wp-user-roles-restrict" \
-  /Applications/XAMPP/htdocs/wordpress/wp-content/plugins/restricted-pages-access
+  /Applications/XAMPP/htdocs/wordpress/wp-content/plugins/secure-freelancer-access
 
 # 3. Переименуйте (если нужно)
 cd /Applications/XAMPP/htdocs/wordpress/wp-content/plugins/
-mv wp-user-roles-restrict restricted-pages-access
+mv wp-user-roles-restrict secure-freelancer-access
 
 # 4. Откройте WordPress админку и активируйте плагин
 ```
@@ -128,10 +128,10 @@ mv wp-user-roles-restrict restricted-pages-access
 cd /var/www/html/wordpress
 
 # 2. Скопируйте плагин
-cp -r /путь/к/плагину wp-content/plugins/restricted-pages-access
+cp -r /путь/к/плагину wp-content/plugins/secure-freelancer-access
 
 # 3. Активируйте через WP-CLI
-wp plugin activate restricted-pages-access
+wp plugin activate secure-freelancer-access
 
 # 4. Проверьте статус
 wp plugin list
@@ -218,7 +218,7 @@ sudo apt-get install php7.4
 
 **Решение:**
 1. Удалите старую версию плагина
-2. Убедитесь, что папка называется `restricted-pages-access`
+2. Убедитесь, что папка называется `secure-freelancer-access`
 
 ### Страница "Ограничение доступа" не появилась
 
@@ -234,7 +234,7 @@ sudo apt-get install php7.4
 **Причина:** Конфликт с другими плагинами
 
 **Решение:**
-1. Отключите все плагины кроме Restricted Pages Access
+1. Отключите все плагины кроме Secure Freelancer Access
 2. Проверьте работу
 3. Включайте плагины по одному, проверяя каждый
 

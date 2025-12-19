@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class RPA_Admin_Page {
 
-	private $page_slug = 'restricted-pages-access';
+	private $page_slug = 'secure-freelancer-access';
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
@@ -23,8 +23,8 @@ class RPA_Admin_Page {
 	 */
 	public function register_menu() {
 		add_options_page(
-			__( 'Content Access Restriction', 'restricted-pages-access' ),
-			__( 'Content Access Restriction', 'restricted-pages-access' ),
+			__( 'Content Access Restriction', 'secure-freelancer-access' ),
+			__( 'Content Access Restriction', 'secure-freelancer-access' ),
 			'manage_options',
 			$this->page_slug,
 			array( $this, 'render_admin_page' )
@@ -108,13 +108,13 @@ class RPA_Admin_Page {
 
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Content Access Restriction', 'restricted-pages-access' ); ?></h1>
+			<h1><?php esc_html_e( 'Content Access Restriction', 'secure-freelancer-access' ); ?></h1>
 
 			<?php
 			// Tab navigation
 			$tabs = array(
-				'users' => __( 'Users', 'restricted-pages-access' ),
-				'logs'  => __( 'Access Log', 'restricted-pages-access' ),
+				'users' => __( 'Users', 'secure-freelancer-access' ),
+				'logs'  => __( 'Access Log', 'secure-freelancer-access' ),
 			);
 
 			echo '<h2 class="nav-tab-wrapper">';
@@ -127,10 +127,10 @@ class RPA_Admin_Page {
 
 			// Success messages
 			if ( isset( $_GET['message'] ) && 'saved' === $_GET['message'] ) {
-				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access settings saved successfully.', 'restricted-pages-access' ) . '</p></div>';
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access settings saved successfully.', 'secure-freelancer-access' ) . '</p></div>';
 			}
 			if ( isset( $_GET['message'] ) && 'logs_cleared' === $_GET['message'] ) {
-				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access log cleared.', 'restricted-pages-access' ) . '</p></div>';
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access log cleared.', 'secure-freelancer-access' ) . '</p></div>';
 			}
 
 			// Display appropriate view
@@ -154,18 +154,18 @@ class RPA_Admin_Page {
 
 		if ( empty( $editors ) ) {
 			echo '<div class="rpa-empty-state">';
-			echo '<p>' . esc_html__( 'No users with "Editor" role found.', 'restricted-pages-access' ) . '</p>';
+			echo '<p>' . esc_html__( 'No users with "Editor" role found.', 'secure-freelancer-access' ) . '</p>';
 			echo '</div>';
 			return;
 		}
 
 		echo '<table class="wp-list-table widefat fixed striped">';
 		echo '<thead><tr>';
-		echo '<th>' . esc_html__( 'User', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Email', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Access (Pages)', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Access (Posts)', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Actions', 'restricted-pages-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'User', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Email', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Access (Pages)', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Access (Posts)', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Actions', 'secure-freelancer-access' ) . '</th>';
 		echo '</tr></thead>';
 		echo '<tbody>';
 
@@ -180,7 +180,7 @@ class RPA_Admin_Page {
 			echo '<td>' . esc_html( $user->user_email ) . '</td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_pages ) . '</span></td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_posts ) . '</span></td>';
-			echo '<td><a href="' . esc_url( $edit_link ) . '" class="button button-small">' . esc_html__( 'Edit Access', 'restricted-pages-access' ) . '</a></td>';
+			echo '<td><a href="' . esc_url( $edit_link ) . '" class="button button-small">' . esc_html__( 'Edit Access', 'secure-freelancer-access' ) . '</a></td>';
 			echo '</tr>';
 		}
 
@@ -193,7 +193,7 @@ class RPA_Admin_Page {
 	private function render_edit_form( $user_id ) {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			echo '<div class="notice notice-error"><p>' . esc_html__( 'User not found.', 'restricted-pages-access' ) . '</p></div>';
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'User not found.', 'secure-freelancer-access' ) . '</p></div>';
 			return;
 		}
 
@@ -215,7 +215,7 @@ class RPA_Admin_Page {
 		?>
 		<p>
 			<a href="<?php echo esc_url( $back_link ); ?>" class="rpa-back-link">
-				&larr; <?php esc_html_e( 'Back to user list', 'restricted-pages-access' ); ?>
+				&larr; <?php esc_html_e( 'Back to user list', 'secure-freelancer-access' ); ?>
 			</a>
 		</p>
 
@@ -223,7 +223,7 @@ class RPA_Admin_Page {
 			<?php
 			echo esc_html( sprintf(
 				/* translators: %1$s: user display name, %2$s: user login */
-				__( 'Edit access for: %1$s (%2$s)', 'restricted-pages-access' ),
+				__( 'Edit access for: %1$s (%2$s)', 'secure-freelancer-access' ),
 				$user->display_name,
 				$user->user_login
 			) );
@@ -232,19 +232,19 @@ class RPA_Admin_Page {
 
 		<!-- Unsaved Changes Indicator -->
 		<div class="rpa-unsaved-indicator">
-			<?php esc_html_e( 'You have unsaved changes', 'restricted-pages-access' ); ?>
+			<?php esc_html_e( 'You have unsaved changes', 'secure-freelancer-access' ); ?>
 		</div>
 
 		<!-- Selected Content Summary (Badges) -->
 		<div id="rpa-selected-summary" style="display: none; margin-bottom: 20px;">
 			<h3>
-				<?php esc_html_e( 'Currently Selected', 'restricted-pages-access' ); ?>
+				<?php esc_html_e( 'Currently Selected', 'secure-freelancer-access' ); ?>
 				(<span id="rpa-selected-total">0</span>)
 			</h3>
 
 			<!-- Pages Badges -->
 			<div class="rpa-badge-group">
-				<strong><?php esc_html_e( 'Pages', 'restricted-pages-access' ); ?> (<span id="rpa-badge-pages-count">0</span>):</strong>
+				<strong><?php esc_html_e( 'Pages', 'secure-freelancer-access' ); ?> (<span id="rpa-badge-pages-count">0</span>):</strong>
 				<div id="rpa-badges-pages" class="rpa-badges-container">
 					<!-- Badges added by JavaScript -->
 				</div>
@@ -252,7 +252,7 @@ class RPA_Admin_Page {
 
 			<!-- Posts Badges -->
 			<div class="rpa-badge-group">
-				<strong><?php esc_html_e( 'Posts', 'restricted-pages-access' ); ?> (<span id="rpa-badge-posts-count">0</span>):</strong>
+				<strong><?php esc_html_e( 'Posts', 'secure-freelancer-access' ); ?> (<span id="rpa-badge-posts-count">0</span>):</strong>
 				<div id="rpa-badges-posts" class="rpa-badges-container">
 					<!-- Badges added by JavaScript -->
 				</div>
@@ -269,7 +269,7 @@ class RPA_Admin_Page {
 				<!-- Pages Block -->
 				<div class="rpa-content-block">
 					<h3>
-						<?php esc_html_e( 'Pages', 'restricted-pages-access' ); ?>
+						<?php esc_html_e( 'Pages', 'secure-freelancer-access' ); ?>
 						<span class="rpa-counter" data-target="allowed_pages">0 / 0</span>
 					</h3>
 
@@ -277,40 +277,40 @@ class RPA_Admin_Page {
 					<div class="rpa-controls">
 						<!-- Search -->
 						<div class="rpa-search-wrapper">
-							<input type="search" class="rpa-search-input" data-target="allowed_pages" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'restricted-pages-access' ); ?>">
+							<input type="search" class="rpa-search-input" data-target="allowed_pages" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'secure-freelancer-access' ); ?>">
 						</div>
 
 						<!-- Filters Row -->
 						<div class="rpa-filters-row">
 							<!-- Status Filter -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Status', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Status', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-status-filter" data-target="allowed_pages">
-									<option value="all"><?php esc_html_e( 'All Statuses', 'restricted-pages-access' ); ?></option>
-									<option value="publish"><?php esc_html_e( 'Published', 'restricted-pages-access' ); ?></option>
-									<option value="draft"><?php esc_html_e( 'Draft', 'restricted-pages-access' ); ?></option>
-									<option value="pending"><?php esc_html_e( 'Pending', 'restricted-pages-access' ); ?></option>
+									<option value="all"><?php esc_html_e( 'All Statuses', 'secure-freelancer-access' ); ?></option>
+									<option value="publish"><?php esc_html_e( 'Published', 'secure-freelancer-access' ); ?></option>
+									<option value="draft"><?php esc_html_e( 'Draft', 'secure-freelancer-access' ); ?></option>
+									<option value="pending"><?php esc_html_e( 'Pending', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 
 							<!-- Sort -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Sort by', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-sort-select" data-target="allowed_pages">
-									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'restricted-pages-access' ); ?></option>
-									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'restricted-pages-access' ); ?></option>
-									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'restricted-pages-access' ); ?></option>
-									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
+									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'secure-freelancer-access' ); ?></option>
+									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'secure-freelancer-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'secure-freelancer-access' ); ?></option>
+									<option value="id"><?php esc_html_e( 'ID', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 
 							<!-- Show -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Show', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Show', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-visibility-filter" data-target="allowed_pages">
-									<option value="all"><?php esc_html_e( 'All', 'restricted-pages-access' ); ?></option>
-									<option value="selected"><?php esc_html_e( 'Selected Only', 'restricted-pages-access' ); ?></option>
-									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'restricted-pages-access' ); ?></option>
+									<option value="all"><?php esc_html_e( 'All', 'secure-freelancer-access' ); ?></option>
+									<option value="selected"><?php esc_html_e( 'Selected Only', 'secure-freelancer-access' ); ?></option>
+									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 						</div>
@@ -319,7 +319,7 @@ class RPA_Admin_Page {
 					<!-- Content List -->
 					<div class="rpa-content-list" data-content-type="allowed_pages">
 						<?php if ( empty( $all_pages ) ) : ?>
-							<p class="rpa-empty-state"><?php esc_html_e( 'No pages found.', 'restricted-pages-access' ); ?></p>
+							<p class="rpa-empty-state"><?php esc_html_e( 'No pages found.', 'secure-freelancer-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_pages as $page ) : ?>
 								<label data-title="<?php echo esc_attr( mb_strtolower( $page->post_title ) ); ?>"
@@ -338,13 +338,13 @@ class RPA_Admin_Page {
 					<!-- Action Buttons -->
 					<div class="rpa-button-group">
 						<button type="button" class="button rpa-select-all" data-target="allowed_pages">
-							<?php esc_html_e( 'Select All', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Select All', 'secure-freelancer-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-select-published" data-target="allowed_pages">
-							<?php esc_html_e( 'Select Published', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Select Published', 'secure-freelancer-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-deselect-all" data-target="allowed_pages">
-							<?php esc_html_e( 'Deselect All', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Deselect All', 'secure-freelancer-access' ); ?>
 						</button>
 					</div>
 				</div>
@@ -352,7 +352,7 @@ class RPA_Admin_Page {
 				<!-- Posts Block -->
 				<div class="rpa-content-block">
 					<h3>
-						<?php esc_html_e( 'Posts', 'restricted-pages-access' ); ?>
+						<?php esc_html_e( 'Posts', 'secure-freelancer-access' ); ?>
 						<span class="rpa-counter" data-target="allowed_posts">0 / 0</span>
 					</h3>
 
@@ -360,40 +360,40 @@ class RPA_Admin_Page {
 					<div class="rpa-controls">
 						<!-- Search -->
 						<div class="rpa-search-wrapper">
-							<input type="search" class="rpa-search-input" data-target="allowed_posts" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'restricted-pages-access' ); ?>">
+							<input type="search" class="rpa-search-input" data-target="allowed_posts" placeholder="<?php esc_attr_e( 'Search by title or ID...', 'secure-freelancer-access' ); ?>">
 						</div>
 
 						<!-- Filters Row -->
 						<div class="rpa-filters-row">
 							<!-- Status Filter -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Status', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Status', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-status-filter" data-target="allowed_posts">
-									<option value="all"><?php esc_html_e( 'All Statuses', 'restricted-pages-access' ); ?></option>
-									<option value="publish"><?php esc_html_e( 'Published', 'restricted-pages-access' ); ?></option>
-									<option value="draft"><?php esc_html_e( 'Draft', 'restricted-pages-access' ); ?></option>
-									<option value="pending"><?php esc_html_e( 'Pending', 'restricted-pages-access' ); ?></option>
+									<option value="all"><?php esc_html_e( 'All Statuses', 'secure-freelancer-access' ); ?></option>
+									<option value="publish"><?php esc_html_e( 'Published', 'secure-freelancer-access' ); ?></option>
+									<option value="draft"><?php esc_html_e( 'Draft', 'secure-freelancer-access' ); ?></option>
+									<option value="pending"><?php esc_html_e( 'Pending', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 
 							<!-- Sort -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Sort by', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Sort by', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-sort-select" data-target="allowed_posts">
-									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'restricted-pages-access' ); ?></option>
-									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'restricted-pages-access' ); ?></option>
-									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'restricted-pages-access' ); ?></option>
-									<option value="id"><?php esc_html_e( 'ID', 'restricted-pages-access' ); ?></option>
+									<option value="date-created" selected><?php esc_html_e( 'Date Created (newest first)', 'secure-freelancer-access' ); ?></option>
+									<option value="date-modified"><?php esc_html_e( 'Date Modified (newest first)', 'secure-freelancer-access' ); ?></option>
+									<option value="title"><?php esc_html_e( 'Title (A-Z)', 'secure-freelancer-access' ); ?></option>
+									<option value="id"><?php esc_html_e( 'ID', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 
 							<!-- Show -->
 							<div class="rpa-filter-group">
-								<label><?php esc_html_e( 'Show', 'restricted-pages-access' ); ?></label>
+								<label><?php esc_html_e( 'Show', 'secure-freelancer-access' ); ?></label>
 								<select class="rpa-visibility-filter" data-target="allowed_posts">
-									<option value="all"><?php esc_html_e( 'All', 'restricted-pages-access' ); ?></option>
-									<option value="selected"><?php esc_html_e( 'Selected Only', 'restricted-pages-access' ); ?></option>
-									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'restricted-pages-access' ); ?></option>
+									<option value="all"><?php esc_html_e( 'All', 'secure-freelancer-access' ); ?></option>
+									<option value="selected"><?php esc_html_e( 'Selected Only', 'secure-freelancer-access' ); ?></option>
+									<option value="unselected"><?php esc_html_e( 'Unselected Only', 'secure-freelancer-access' ); ?></option>
 								</select>
 							</div>
 						</div>
@@ -402,7 +402,7 @@ class RPA_Admin_Page {
 					<!-- Content List -->
 					<div class="rpa-content-list" data-content-type="allowed_posts">
 						<?php if ( empty( $all_posts ) ) : ?>
-							<p class="rpa-empty-state"><?php esc_html_e( 'No posts found.', 'restricted-pages-access' ); ?></p>
+							<p class="rpa-empty-state"><?php esc_html_e( 'No posts found.', 'secure-freelancer-access' ); ?></p>
 						<?php else : ?>
 							<?php foreach ( $all_posts as $post ) : ?>
 								<label data-title="<?php echo esc_attr( mb_strtolower( $post->post_title ? $post->post_title : '(No title)' ) ); ?>"
@@ -411,7 +411,7 @@ class RPA_Admin_Page {
 									   data-date-created="<?php echo esc_attr( strtotime( $post->post_date ) ); ?>"
 									   data-date-modified="<?php echo esc_attr( strtotime( $post->post_modified ) ); ?>">
 									<input type="checkbox" name="allowed_posts[]" value="<?php echo esc_attr( $post->ID ); ?>" <?php checked( in_array( $post->ID, $allowed_posts ) ); ?>>
-									<span>[<?php echo esc_html( $post->ID ); ?>] <?php echo esc_html( $post->post_title ? $post->post_title : __( '(No title)', 'restricted-pages-access' ) ); ?></span>
+									<span>[<?php echo esc_html( $post->ID ); ?>] <?php echo esc_html( $post->post_title ? $post->post_title : __( '(No title)', 'secure-freelancer-access' ) ); ?></span>
 									<span class="rpa-content-status">(<?php echo esc_html( $post->post_status ); ?>)</span>
 								</label>
 							<?php endforeach; ?>
@@ -421,13 +421,13 @@ class RPA_Admin_Page {
 					<!-- Action Buttons -->
 					<div class="rpa-button-group">
 						<button type="button" class="button rpa-select-all" data-target="allowed_posts">
-							<?php esc_html_e( 'Select All', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Select All', 'secure-freelancer-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-select-published" data-target="allowed_posts">
-							<?php esc_html_e( 'Select Published', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Select Published', 'secure-freelancer-access' ); ?>
 						</button>
 						<button type="button" class="button rpa-deselect-all" data-target="allowed_posts">
-							<?php esc_html_e( 'Deselect All', 'restricted-pages-access' ); ?>
+							<?php esc_html_e( 'Deselect All', 'secure-freelancer-access' ); ?>
 						</button>
 					</div>
 				</div>
@@ -435,7 +435,7 @@ class RPA_Admin_Page {
 			</div>
 
 			<p class="submit">
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'restricted-pages-access' ); ?>">
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'secure-freelancer-access' ); ?>">
 			</p>
 		</form>
 
@@ -443,7 +443,7 @@ class RPA_Admin_Page {
 			<?php
 			echo esc_html(
 				sprintf(
-					__( 'Restricted Pages Access Plugin - Version %s', 'restricted-pages-access' ),
+					__( 'Secure Freelancer Access Plugin - Version %s', 'secure-freelancer-access' ),
 					RPA_VERSION
 				)
 			);
@@ -460,17 +460,17 @@ class RPA_Admin_Page {
 
 		if ( empty( $logs ) ) {
 			echo '<div class="rpa-empty-state">';
-			echo '<p>' . esc_html__( 'Access log is empty. No unauthorized access attempts recorded.', 'restricted-pages-access' ) . '</p>';
+			echo '<p>' . esc_html__( 'Access log is empty. No unauthorized access attempts recorded.', 'secure-freelancer-access' ) . '</p>';
 			echo '</div>';
 			return;
 		}
 
 		echo '<table class="wp-list-table widefat fixed striped rpa-logs-table">';
 		echo '<thead><tr>';
-		echo '<th>' . esc_html__( 'Time', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'User', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Attempted Access To', 'restricted-pages-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'IP Address', 'restricted-pages-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Time', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'User', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Attempted Access To', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'IP Address', 'secure-freelancer-access' ) . '</th>';
 		echo '</tr></thead>';
 		echo '<tbody>';
 
@@ -489,7 +489,7 @@ class RPA_Admin_Page {
 		<form method="post" action="" style="margin-top: 20px;">
 			<?php wp_nonce_field( 'rpa_clear_logs', 'rpa_nonce' ); ?>
 			<input type="hidden" name="rpa_action" value="clear_logs">
-			<input type="submit" class="button" value="<?php esc_attr_e( 'Clear Log', 'restricted-pages-access' ); ?>" onclick="return confirm('<?php esc_attr_e( 'Are you sure?', 'restricted-pages-access' ); ?>');">
+			<input type="submit" class="button" value="<?php esc_attr_e( 'Clear Log', 'secure-freelancer-access' ); ?>" onclick="return confirm('<?php esc_attr_e( 'Are you sure?', 'secure-freelancer-access' ); ?>');">
 		</form>
 		<?php
 	}

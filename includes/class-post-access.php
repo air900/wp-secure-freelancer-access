@@ -56,8 +56,8 @@ class RPA_Post_Access {
 		if ( ! $is_allowed ) {
 			$this->log_access_attempt( $user_id, $post_id );
 			wp_die(
-				esc_html__( 'You do not have permission to edit this content.', 'restricted-pages-access' ),
-				esc_html__( 'Access Denied', 'restricted-pages-access' ),
+				esc_html__( 'You do not have permission to edit this content.', 'secure-freelancer-access' ),
+				esc_html__( 'Access Denied', 'secure-freelancer-access' ),
 				array( 'response' => 403 )
 			);
 		}
@@ -77,7 +77,7 @@ class RPA_Post_Access {
 		$ip         = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'Unknown';
 
 		$message = sprintf(
-			'[Restricted Pages Access] Access Denied. User: %s (ID: %d). Post: %s (ID: %d). IP: %s',
+			'[Secure Freelancer Access] Access Denied. User: %s (ID: %d). Post: %s (ID: %d). IP: %s',
 			$user_login,
 			$user_id,
 			$post_title,

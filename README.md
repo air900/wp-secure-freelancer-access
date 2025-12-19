@@ -1,4 +1,4 @@
-# Restricted Pages Access
+# Secure Freelancer Access
 
 Плагин для WordPress, который позволяет ограничивать доступ пользователей с ролью **Editor** (Редактор) к конкретным страницам и записям в административной панели.
 
@@ -26,13 +26,13 @@
 1. **Скачайте плагин** или создайте ZIP-архив:
    ```bash
    cd /путь/к/wp-user-roles-restrict
-   zip -r restricted-pages-access.zip . -x "*.git*" "idea.md" "test-restricted-pages-access.php"
+   zip -r secure-freelancer-access.zip . -x "*.git*" "idea.md" "test-secure-freelancer-access.php"
    ```
 
 2. **Загрузите в WordPress:**
    - Зайдите в админ-панель WordPress
    - Перейдите: `Плагины → Добавить новый → Загрузить плагин`
-   - Выберите файл `restricted-pages-access.zip`
+   - Выберите файл `secure-freelancer-access.zip`
    - Нажмите `Установить`
 
 3. **Активируйте плагин:**
@@ -53,13 +53,13 @@
 
 3. **Переименуйте папку** (если нужно):
    ```bash
-   mv wp-user-roles-restrict restricted-pages-access
+   mv wp-user-roles-restrict secure-freelancer-access
    ```
 
 4. **Активируйте плагин:**
    - Зайдите в админ-панель WordPress
    - Перейдите: `Плагины`
-   - Найдите **Restricted Pages Access** и нажмите `Активировать`
+   - Найдите **Secure Freelancer Access** и нажмите `Активировать`
 
 ### Способ 3: Установка через WP-CLI
 
@@ -68,10 +68,10 @@
 cd /var/www/html/wordpress
 
 # Скопируйте плагин в директорию плагинов
-cp -r /путь/к/wp-user-roles-restrict wp-content/plugins/restricted-pages-access
+cp -r /путь/к/wp-user-roles-restrict wp-content/plugins/secure-freelancer-access
 
 # Активируйте плагин
-wp plugin activate restricted-pages-access
+wp plugin activate secure-freelancer-access
 ```
 
 ## 🚀 Быстрый старт
@@ -148,14 +148,14 @@ wp plugin activate restricted-pages-access
 ## 🏗️ Структура плагина
 
 ```
-restricted-pages-access/
-├── restricted-pages-access.php       # Главный файл плагина
+secure-freelancer-access/
+├── secure-freelancer-access.php       # Главный файл плагина
 ├── includes/                         # Классы плагина
 │   ├── class-admin-page.php          # Административный интерфейс
 │   ├── class-access-filter.php       # Фильтрация списков в админке
 │   ├── class-post-access.php         # Проверка доступа к отдельным постам
 │   └── class-user-meta-handler.php   # Работа с метаданными пользователей
-├── test-restricted-pages-access.php  # Unit-тесты
+├── test-secure-freelancer-access.php  # Unit-тесты
 ├── idea.md                           # Техническое задание
 ├── README.md                         # Документация (этот файл)
 └── readme.txt                        # Описание для WordPress.org
@@ -176,7 +176,7 @@ restricted-pages-access/
 bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
 
 # Запустите тесты
-phpunit test-restricted-pages-access.php
+phpunit test-secure-freelancer-access.php
 ```
 
 **Покрытие тестами:**

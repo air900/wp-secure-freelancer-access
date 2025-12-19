@@ -1,4 +1,4 @@
-=== Restricted Pages Access ===
+=== Secure Freelancer Access ===
 Contributors: (your username)
 Tags: permissions, roles, access control, editor, pages
 Requires at least: 5.8
@@ -12,7 +12,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-**Restricted Pages Access** — плагин для точечного управления доступом пользователей с ролью Editor к страницам и записям в административной панели WordPress.
+**Secure Freelancer Access** — плагин для точечного управления доступом пользователей с ролью Editor к страницам и записям в административной панели WordPress.
 
 = Проблема =
 
@@ -65,13 +65,13 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 = Автоматическая установка =
 
 1. Зайдите в `Плагины → Добавить новый`
-2. В поиске введите "Restricted Pages Access"
+2. В поиске введите "Secure Freelancer Access"
 3. Нажмите "Установить" и затем "Активировать"
 
 = Ручная установка =
 
 1. Загрузите ZIP-архив плагина
-2. Распакуйте в папку `/wp-content/plugins/restricted-pages-access/`
+2. Распакуйте в папку `/wp-content/plugins/secure-freelancer-access/`
 3. Активируйте плагин в разделе `Плагины` админ-панели WordPress
 
 = Настройка =

@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name: Restricted Pages Access
- * Description: Restrict editor access to specific pages and posts in WordPress admin.
+ * Plugin Name: Secure Freelancer Access
+ * Description: Securely grant freelancers access to specific pages and posts only.
  * Version: 1.1.18
  * Author: air900
- * Text Domain: restricted-pages-access
+ * Text Domain: secure-freelancer-access
  * Domain Path: /languages
  */
 
@@ -28,7 +28,7 @@ require_once RPA_PLUGIN_DIR . 'includes/class-admin-page.php';
 add_action( 'plugins_loaded', 'rpa_load_textdomain' );
 
 function rpa_load_textdomain() {
-	load_plugin_textdomain( 'restricted-pages-access', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'secure-freelancer-access', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
 
 // Инициализация при загрузке плагинов
@@ -44,7 +44,7 @@ add_action( 'plugins_loaded', function() {
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'rpa_add_settings_link' );
 
 function rpa_add_settings_link( $links ) {
-	$settings_link = '<a href="' . admin_url( 'options-general.php?page=restricted-pages-access' ) . '">' . __( 'Settings', 'restricted-pages-access' ) . '</a>';
+	$settings_link = '<a href="' . admin_url( 'options-general.php?page=secure-freelancer-access' ) . '">' . __( 'Settings', 'secure-freelancer-access' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
