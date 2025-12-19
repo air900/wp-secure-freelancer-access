@@ -148,7 +148,10 @@ class RPA_Post_Access {
 			$ip
 		);
 
-		error_log( $message );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional logging for security audit
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( $message );
+		}
 
 		// Сохраняем в БД для вывода в админке
 		$logs = get_option( 'rpa_access_logs', array() );

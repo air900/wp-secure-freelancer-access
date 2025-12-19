@@ -216,6 +216,16 @@ class RPA_User_Meta_Handler {
 	}
 
 	/**
+	 * Clear user access schedule.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool True on success, false on failure.
+	 */
+	public static function clear_user_access_schedule( $user_id ) {
+		return delete_user_meta( $user_id, 'rpa_access_schedule' );
+	}
+
+	/**
 	 * Check if user access is currently active (based on schedule).
 	 *
 	 * @param int $user_id User ID.
@@ -239,6 +249,61 @@ class RPA_User_Meta_Handler {
 		// Check end date
 		if ( ! empty( $schedule['end_date'] ) && $now > $schedule['end_date'] ) {
 			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Copy all access rights from one user to another.
+	 *
+	 * @param int  $source_user_id Source user ID.
+	 * @param int  $target_user_id Target user ID.
+	 * @param bool $include_schedule Whether to copy schedule as well.
+	 * @return bool True on success.
+	 */
+	public static function copy_user_access( $source_user_id, $target_user_id, $include_schedule = false ) {
+		// Copy pages
+		$pages = self::get_user_allowed_pages( $source_user_id );
+		self::set_user_allowed_pages( $target_user_id, $pages );
+
+		// Copy posts
+		$posts = self::get_user_allowed_posts( $source_user_id );
+		self::set_user_allowed_posts( $target_user_id, $posts );
+
+		// Copy media
+		$media = self::get_user_allowed_media( $source_user_id );
+		self::set_user_allowed_media( $target_user_id, $media );
+
+		// Copy custom post types
+		$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+		foreach ( $enabled_types as $post_type ) {
+			if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
+				continue;
+			}
+			$content = self::get_user_allowed_content( $source_user_id, $post_type );
+			self::set_user_allowed_content( $target_user_id, $post_type, $content );
+		}
+
+		// Copy taxonomies
+		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		foreach ( $enabled_taxonomies as $taxonomy ) {
+			$terms = self::get_user_allowed_taxonomy_terms( $source_user_id, $taxonomy );
+			self::set_user_allowed_taxonomy_terms( $target_user_id, $taxonomy, $terms );
+		}
+
+		// Optionally copy schedule
+		if ( $include_schedule ) {
+			$schedule = self::get_user_access_schedule( $source_user_id );
+			if ( $schedule ) {
+				self::set_user_access_schedule(
+					$target_user_id,
+					$schedule['start_date'] ?? null,
+					$schedule['end_date'] ?? null
+				);
+			} else {
+				self::clear_user_access_schedule( $target_user_id );
+			}
 		}
 
 		return true;

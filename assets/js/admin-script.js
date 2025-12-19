@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // Инициализация для каждой группы (Страницы и Записи)
     ['allowed_pages', 'allowed_posts'].forEach(target => {
         initGroup(target);
@@ -8,10 +8,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка индикатора несохраненных изменений
     const form = document.querySelector('form');
     const unsavedIndicator = document.querySelector('.rpa-unsaved-indicator');
-    
+
     if (form && unsavedIndicator) {
         form.addEventListener('change', () => {
             unsavedIndicator.style.display = 'inline-block';
+        });
+    }
+
+    // Temporary Access Schedule toggle
+    const enableSchedule = document.getElementById('rpa-enable-schedule');
+    const scheduleFields = document.getElementById('rpa-schedule-fields');
+    const scheduleNotice = document.getElementById('rpa-schedule-notice');
+
+    if (enableSchedule && scheduleFields && scheduleNotice) {
+        enableSchedule.addEventListener('change', function() {
+            if (this.checked) {
+                scheduleFields.style.display = '';
+                scheduleNotice.style.display = '';
+            } else {
+                scheduleFields.style.display = 'none';
+                scheduleNotice.style.display = 'none';
+            }
         });
     }
 });

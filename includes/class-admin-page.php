@@ -72,7 +72,7 @@ class RPA_Admin_Page {
 		if ( 'clear_logs' === $_POST['rpa_action'] ) {
 			check_admin_referer( 'rpa_clear_logs', 'rpa_nonce' );
 			delete_option( 'rpa_access_logs' );
-			wp_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'logs', 'message' => 'logs_cleared' ), admin_url( 'options-general.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'logs', 'message' => 'logs_cleared' ), admin_url( 'options-general.php' ) ) );
 			exit;
 		}
 
@@ -86,15 +86,27 @@ class RPA_Admin_Page {
 			}
 
 			// Save pages
-			$allowed_pages = isset( $_POST['allowed_pages'] ) ? (array) $_POST['allowed_pages'] : array();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of integers sanitized by array_map
+			$allowed_pages = isset( $_POST['allowed_pages'] ) ? array_map( 'intval', wp_unslash( (array) $_POST['allowed_pages'] ) ) : array();
 			RPA_User_Meta_Handler::set_user_allowed_pages( $user_id, $allowed_pages );
 
 			// Save posts
-			$allowed_posts = isset( $_POST['allowed_posts'] ) ? (array) $_POST['allowed_posts'] : array();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of integers sanitized by array_map
+			$allowed_posts = isset( $_POST['allowed_posts'] ) ? array_map( 'intval', wp_unslash( (array) $_POST['allowed_posts'] ) ) : array();
 			RPA_User_Meta_Handler::set_user_allowed_posts( $user_id, $allowed_posts );
 
+			// Save access schedule
+			if ( ! empty( $_POST['enable_schedule'] ) ) {
+				$start_date = isset( $_POST['access_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['access_start_date'] ) ) : '';
+				$end_date = isset( $_POST['access_end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['access_end_date'] ) ) : '';
+				RPA_User_Meta_Handler::set_user_access_schedule( $user_id, $start_date, $end_date );
+			} else {
+				// Clear schedule if checkbox unchecked
+				RPA_User_Meta_Handler::clear_user_access_schedule( $user_id );
+			}
+
 			// Redirect with success message
-			wp_redirect( add_query_arg( array( 'page' => $this->page_slug, 'message' => 'saved', 'edit_user' => $user_id ), admin_url( 'options-general.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'message' => 'saved', 'edit_user' => $user_id ), admin_url( 'options-general.php' ) ) );
 			exit;
 		}
 
@@ -103,9 +115,12 @@ class RPA_Admin_Page {
 			check_admin_referer( 'rpa_save_settings', 'rpa_nonce' );
 
 			$settings = array(
-				'restricted_roles'        => isset( $_POST['restricted_roles'] ) ? (array) $_POST['restricted_roles'] : array(),
-				'enabled_post_types'      => isset( $_POST['enabled_post_types'] ) ? (array) $_POST['enabled_post_types'] : array(),
-				'enabled_taxonomies'      => isset( $_POST['enabled_taxonomies'] ) ? (array) $_POST['enabled_taxonomies'] : array(),
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of strings sanitized by array_map
+				'restricted_roles'        => isset( $_POST['restricted_roles'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_POST['restricted_roles'] ) ) : array(),
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of strings sanitized by array_map
+				'enabled_post_types'      => isset( $_POST['enabled_post_types'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_POST['enabled_post_types'] ) ) : array(),
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array of strings sanitized by array_map
+				'enabled_taxonomies'      => isset( $_POST['enabled_taxonomies'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_POST['enabled_taxonomies'] ) ) : array(),
 				'media_restriction'       => ! empty( $_POST['media_restriction'] ),
 				'woocommerce_products'    => ! empty( $_POST['woocommerce_products'] ),
 				'woocommerce_orders'      => ! empty( $_POST['woocommerce_orders'] ),
@@ -116,7 +131,93 @@ class RPA_Admin_Page {
 
 			RPA_Settings::save_settings( $settings );
 
-			wp_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'settings', 'message' => 'settings_saved' ), admin_url( 'options-general.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'settings', 'message' => 'settings_saved' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
+
+		// Save template
+		if ( 'save_template' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_save_template', 'rpa_nonce' );
+
+			$template_id = isset( $_POST['template_id'] ) ? sanitize_key( $_POST['template_id'] ) : '';
+			$template_data = array(
+				'name'        => isset( $_POST['template_name'] ) ? $_POST['template_name'] : '',
+				'description' => isset( $_POST['template_description'] ) ? $_POST['template_description'] : '',
+				'content'     => array(
+					'page' => isset( $_POST['template_pages'] ) ? (array) $_POST['template_pages'] : array(),
+					'post' => isset( $_POST['template_posts'] ) ? (array) $_POST['template_posts'] : array(),
+				),
+			);
+
+			RPA_Access_Templates::save_template( $template_id, $template_data );
+
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'templates', 'message' => 'template_saved' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
+
+		// Delete template
+		if ( 'delete_template' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_delete_template', 'rpa_nonce' );
+
+			$template_id = isset( $_POST['template_id'] ) ? sanitize_key( $_POST['template_id'] ) : '';
+			if ( $template_id ) {
+				RPA_Access_Templates::delete_template( $template_id );
+			}
+
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'templates', 'message' => 'template_deleted' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
+
+		// Apply template to user
+		if ( 'apply_template' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_apply_template', 'rpa_nonce' );
+
+			$template_id = isset( $_POST['template_id'] ) ? sanitize_key( $_POST['template_id'] ) : '';
+			$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
+			$merge = ! empty( $_POST['merge_access'] );
+
+			if ( $template_id && $user_id ) {
+				RPA_Access_Templates::apply_to_user( $template_id, $user_id, $merge );
+			}
+
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'templates', 'message' => 'template_applied' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
+
+		// Create template from user
+		if ( 'create_template_from_user' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_create_template_from_user', 'rpa_nonce' );
+
+			$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
+			$template_name = isset( $_POST['template_name'] ) ? sanitize_text_field( $_POST['template_name'] ) : '';
+
+			if ( $user_id && $template_name ) {
+				$user = get_userdata( $user_id );
+				$description = sprintf(
+					/* translators: %s: user name */
+					__( 'Created from user: %s', 'secure-freelancer-access' ),
+					$user ? $user->display_name : ''
+				);
+				RPA_Access_Templates::create_from_user( $user_id, $template_name, $description );
+			}
+
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'templates', 'message' => 'template_saved' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
+
+		// Copy user access
+		if ( 'copy_access' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_copy_access', 'rpa_nonce' );
+
+			$source_user_id = isset( $_POST['source_user_id'] ) ? intval( $_POST['source_user_id'] ) : 0;
+			$target_user_id = isset( $_POST['target_user_id'] ) ? intval( $_POST['target_user_id'] ) : 0;
+			$include_schedule = ! empty( $_POST['include_schedule'] );
+
+			if ( $source_user_id && $target_user_id && $source_user_id !== $target_user_id ) {
+				RPA_User_Meta_Handler::copy_user_access( $source_user_id, $target_user_id, $include_schedule );
+			}
+
+			wp_safe_redirect( add_query_arg( array( 'page' => $this->page_slug, 'message' => 'access_copied' ), admin_url( 'options-general.php' ) ) );
 			exit;
 		}
 	}
@@ -135,9 +236,10 @@ class RPA_Admin_Page {
 			<?php
 			// Tab navigation
 			$tabs = array(
-				'users'    => __( 'Users', 'secure-freelancer-access' ),
-				'logs'     => __( 'Access Log', 'secure-freelancer-access' ),
-				'settings' => __( 'Settings', 'secure-freelancer-access' ),
+				'users'     => __( 'Users', 'secure-freelancer-access' ),
+				'templates' => __( 'Templates', 'secure-freelancer-access' ),
+				'logs'      => __( 'Access Log', 'secure-freelancer-access' ),
+				'settings'  => __( 'Settings', 'secure-freelancer-access' ),
 			);
 
 			echo '<h2 class="nav-tab-wrapper">';
@@ -158,10 +260,33 @@ class RPA_Admin_Page {
 			if ( isset( $_GET['message'] ) && 'settings_saved' === $_GET['message'] ) {
 				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Settings saved successfully.', 'secure-freelancer-access' ) . '</p></div>';
 			}
+			if ( isset( $_GET['message'] ) && 'template_saved' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Template saved successfully.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'template_deleted' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Template deleted.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'template_applied' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Template applied to user successfully.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'access_copied' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access permissions copied successfully.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'import_success' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Data imported successfully.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'import_error' === $_GET['message'] ) {
+				echo '<div class="notice notice-error is-dismissible rpa-notice"><p>' . esc_html__( 'Error: Could not read import file.', 'secure-freelancer-access' ) . '</p></div>';
+			}
+			if ( isset( $_GET['message'] ) && 'import_invalid' === $_GET['message'] ) {
+				echo '<div class="notice notice-error is-dismissible rpa-notice"><p>' . esc_html__( 'Error: Invalid import file format.', 'secure-freelancer-access' ) . '</p></div>';
+			}
 
 			// Display appropriate view
 			if ( $edit_user_id ) {
 				$this->render_edit_form( $edit_user_id );
+			} elseif ( 'templates' === $current_view ) {
+				$this->render_templates();
 			} elseif ( 'logs' === $current_view ) {
 				$this->render_logs();
 			} elseif ( 'settings' === $current_view ) {
@@ -261,6 +386,50 @@ class RPA_Admin_Page {
 		}
 
 		echo '</tbody></table>';
+
+		// Copy Access Form
+		if ( count( $users ) >= 2 ) :
+		?>
+		<div class="rpa-settings-section" style="margin-top: 20px; max-width: 500px;">
+			<h3><?php esc_html_e( 'Copy Access Permissions', 'secure-freelancer-access' ); ?></h3>
+			<p class="description"><?php esc_html_e( 'Copy all access permissions from one user to another.', 'secure-freelancer-access' ); ?></p>
+
+			<form method="post" action="">
+				<?php wp_nonce_field( 'rpa_copy_access', 'rpa_nonce' ); ?>
+				<input type="hidden" name="rpa_action" value="copy_access">
+
+				<p>
+					<label for="rpa-source-user"><?php esc_html_e( 'Copy from:', 'secure-freelancer-access' ); ?></label><br>
+					<select name="source_user_id" id="rpa-source-user" style="width: 100%;">
+						<?php foreach ( $users as $user ) : ?>
+							<option value="<?php echo esc_attr( $user->ID ); ?>"><?php echo esc_html( $user->display_name . ' (' . $user->user_login . ')' ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</p>
+
+				<p>
+					<label for="rpa-target-user"><?php esc_html_e( 'Copy to:', 'secure-freelancer-access' ); ?></label><br>
+					<select name="target_user_id" id="rpa-target-user" style="width: 100%;">
+						<?php foreach ( $users as $user ) : ?>
+							<option value="<?php echo esc_attr( $user->ID ); ?>"><?php echo esc_html( $user->display_name . ' (' . $user->user_login . ')' ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</p>
+
+				<p>
+					<label>
+						<input type="checkbox" name="include_schedule" value="1">
+						<?php esc_html_e( 'Also copy access schedule (start/end dates)', 'secure-freelancer-access' ); ?>
+					</label>
+				</p>
+
+				<p>
+					<input type="submit" class="button button-primary" value="<?php esc_attr_e( 'Copy Access', 'secure-freelancer-access' ); ?>" onclick="return confirm('<?php esc_attr_e( 'This will overwrite the target user\'s access permissions. Continue?', 'secure-freelancer-access' ); ?>');">
+				</p>
+			</form>
+		</div>
+		<?php
+		endif;
 	}
 
 	/**
@@ -277,6 +446,8 @@ class RPA_Admin_Page {
 
 		$allowed_pages = RPA_User_Meta_Handler::get_user_allowed_pages( $user_id );
 		$allowed_posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
+		$schedule = RPA_User_Meta_Handler::get_user_access_schedule( $user_id );
+		$is_active = RPA_User_Meta_Handler::is_user_access_active( $user_id );
 
 		// Get all pages and posts
 		$all_pages = get_pages( array(
@@ -339,6 +510,38 @@ class RPA_Admin_Page {
 			<?php wp_nonce_field( 'rpa_save_access', 'rpa_nonce' ); ?>
 			<input type="hidden" name="rpa_action" value="save_access">
 			<input type="hidden" name="user_id" value="<?php echo esc_attr( $user_id ); ?>">
+
+			<!-- Temporary Access Schedule -->
+			<div class="rpa-schedule-section">
+				<h4>
+					<?php esc_html_e( 'Access Schedule', 'secure-freelancer-access' ); ?>
+					<?php if ( $schedule && ! $is_active ) : ?>
+						<span class="rpa-schedule-expired"><?php esc_html_e( '(Expired)', 'secure-freelancer-access' ); ?></span>
+					<?php elseif ( $schedule ) : ?>
+						<span class="rpa-schedule-active"><?php esc_html_e( '(Active)', 'secure-freelancer-access' ); ?></span>
+					<?php endif; ?>
+				</h4>
+
+				<label class="rpa-checkbox-item" style="margin-bottom: 15px;">
+					<input type="checkbox" name="enable_schedule" id="rpa-enable-schedule" value="1" <?php checked( ! empty( $schedule ) ); ?>>
+					<span><?php esc_html_e( 'Enable temporary access (set start and end dates)', 'secure-freelancer-access' ); ?></span>
+				</label>
+
+				<div class="rpa-schedule-fields" id="rpa-schedule-fields" style="<?php echo empty( $schedule ) ? 'display: none;' : ''; ?>">
+					<div class="rpa-schedule-field">
+						<label for="rpa-start-date"><?php esc_html_e( 'Start Date', 'secure-freelancer-access' ); ?></label>
+						<input type="date" id="rpa-start-date" name="access_start_date" value="<?php echo esc_attr( ! empty( $schedule['start_date'] ) ? $schedule['start_date'] : '' ); ?>">
+					</div>
+					<div class="rpa-schedule-field">
+						<label for="rpa-end-date"><?php esc_html_e( 'End Date', 'secure-freelancer-access' ); ?></label>
+						<input type="date" id="rpa-end-date" name="access_end_date" value="<?php echo esc_attr( ! empty( $schedule['end_date'] ) ? $schedule['end_date'] : '' ); ?>">
+					</div>
+				</div>
+
+				<div class="rpa-schedule-notice" id="rpa-schedule-notice" style="<?php echo empty( $schedule ) ? 'display: none;' : ''; ?>">
+					<?php esc_html_e( 'Leave Start Date empty for immediate access. Leave End Date empty for no expiration.', 'secure-freelancer-access' ); ?>
+				</div>
+			</div>
 
 			<div class="rpa-edit-form-container">
 
@@ -734,6 +937,199 @@ class RPA_Admin_Page {
 				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Settings', 'secure-freelancer-access' ); ?>">
 			</p>
 		</form>
+
+		<!-- Export/Import Section -->
+		<div class="rpa-settings-container" style="margin-top: 30px;">
+			<div class="rpa-settings-section">
+				<h3><?php esc_html_e( 'Export / Import', 'secure-freelancer-access' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'Export all plugin data (settings, templates, user access) to a JSON file, or import from a previously exported file.', 'secure-freelancer-access' ); ?></p>
+
+				<div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 15px;">
+					<!-- Export -->
+					<div style="flex: 1; min-width: 250px;">
+						<h4><?php esc_html_e( 'Export Data', 'secure-freelancer-access' ); ?></h4>
+						<p class="description"><?php esc_html_e( 'Download a JSON file containing all plugin settings, templates, and user access permissions.', 'secure-freelancer-access' ); ?></p>
+						<p style="margin-top: 10px;">
+							<a href="<?php echo esc_url( RPA_Export_Import::get_export_url() ); ?>" class="button button-secondary">
+								<span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
+								<?php esc_html_e( 'Export to JSON', 'secure-freelancer-access' ); ?>
+							</a>
+						</p>
+					</div>
+
+					<!-- Import -->
+					<div style="flex: 1; min-width: 250px;">
+						<h4><?php esc_html_e( 'Import Data', 'secure-freelancer-access' ); ?></h4>
+						<p class="description"><?php esc_html_e( 'Import settings and access permissions from a previously exported JSON file. Users are matched by login or email.', 'secure-freelancer-access' ); ?></p>
+						<form method="post" enctype="multipart/form-data" style="margin-top: 10px;">
+							<?php wp_nonce_field( 'rpa_import', 'rpa_nonce' ); ?>
+							<input type="hidden" name="rpa_action" value="import_data">
+							<p>
+								<input type="file" name="import_file" accept=".json" required>
+							</p>
+							<p>
+								<button type="submit" class="button button-secondary">
+									<span class="dashicons dashicons-upload" style="vertical-align: middle;"></span>
+									<?php esc_html_e( 'Import from JSON', 'secure-freelancer-access' ); ?>
+								</button>
+							</p>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Display templates management.
+	 */
+	private function render_templates() {
+		$templates = RPA_Access_Templates::get_templates();
+		$restricted_roles = RPA_Settings::get( 'restricted_roles', array( 'editor' ) );
+		$users = get_users( array( 'role__in' => $restricted_roles ) );
+
+		?>
+		<div class="rpa-templates-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+
+			<!-- Templates List -->
+			<div class="rpa-settings-section" style="flex: 1; min-width: 400px;">
+				<h3><?php esc_html_e( 'Access Templates', 'secure-freelancer-access' ); ?></h3>
+				<p class="description"><?php esc_html_e( 'Templates allow you to quickly apply predefined access permissions to users.', 'secure-freelancer-access' ); ?></p>
+
+				<?php if ( empty( $templates ) ) : ?>
+					<div class="rpa-empty-state">
+						<p><?php esc_html_e( 'No templates created yet.', 'secure-freelancer-access' ); ?></p>
+					</div>
+				<?php else : ?>
+					<table class="wp-list-table widefat fixed striped">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Name', 'secure-freelancer-access' ); ?></th>
+								<th><?php esc_html_e( 'Content', 'secure-freelancer-access' ); ?></th>
+								<th><?php esc_html_e( 'Actions', 'secure-freelancer-access' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $templates as $template_id => $template ) : ?>
+								<?php $summary = RPA_Access_Templates::get_template_summary( $template_id ); ?>
+								<tr>
+									<td>
+										<strong><?php echo esc_html( $template['name'] ); ?></strong>
+										<?php if ( ! empty( $template['description'] ) ) : ?>
+											<br><small><?php echo esc_html( $template['description'] ); ?></small>
+										<?php endif; ?>
+									</td>
+									<td>
+										<?php
+										$summary_parts = array();
+										foreach ( $summary as $label => $count ) {
+											$summary_parts[] = $label . ': ' . $count;
+										}
+										echo esc_html( implode( ', ', $summary_parts ) ?: '-' );
+										?>
+									</td>
+									<td>
+										<form method="post" action="" style="display: inline;">
+											<?php wp_nonce_field( 'rpa_delete_template', 'rpa_nonce' ); ?>
+											<input type="hidden" name="rpa_action" value="delete_template">
+											<input type="hidden" name="template_id" value="<?php echo esc_attr( $template_id ); ?>">
+											<button type="submit" class="button button-small" onclick="return confirm('<?php esc_attr_e( 'Delete this template?', 'secure-freelancer-access' ); ?>');">
+												<?php esc_html_e( 'Delete', 'secure-freelancer-access' ); ?>
+											</button>
+										</form>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+			</div>
+
+			<!-- Apply Template -->
+			<div class="rpa-settings-section" style="flex: 1; min-width: 300px;">
+				<h3><?php esc_html_e( 'Apply Template to User', 'secure-freelancer-access' ); ?></h3>
+
+				<?php if ( empty( $templates ) || empty( $users ) ) : ?>
+					<p class="description">
+						<?php
+						if ( empty( $templates ) ) {
+							esc_html_e( 'Create a template first.', 'secure-freelancer-access' );
+						} else {
+							esc_html_e( 'No restricted users found.', 'secure-freelancer-access' );
+						}
+						?>
+					</p>
+				<?php else : ?>
+					<form method="post" action="">
+						<?php wp_nonce_field( 'rpa_apply_template', 'rpa_nonce' ); ?>
+						<input type="hidden" name="rpa_action" value="apply_template">
+
+						<p>
+							<label for="rpa-apply-template"><?php esc_html_e( 'Select Template:', 'secure-freelancer-access' ); ?></label><br>
+							<select name="template_id" id="rpa-apply-template" style="width: 100%;">
+								<?php foreach ( $templates as $template_id => $template ) : ?>
+									<option value="<?php echo esc_attr( $template_id ); ?>"><?php echo esc_html( $template['name'] ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</p>
+
+						<p>
+							<label for="rpa-apply-user"><?php esc_html_e( 'Select User:', 'secure-freelancer-access' ); ?></label><br>
+							<select name="user_id" id="rpa-apply-user" style="width: 100%;">
+								<?php foreach ( $users as $user ) : ?>
+									<option value="<?php echo esc_attr( $user->ID ); ?>"><?php echo esc_html( $user->display_name . ' (' . $user->user_login . ')' ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</p>
+
+						<p>
+							<label>
+								<input type="checkbox" name="merge_access" value="1">
+								<?php esc_html_e( 'Merge with existing access (instead of replacing)', 'secure-freelancer-access' ); ?>
+							</label>
+						</p>
+
+						<p>
+							<input type="submit" class="button button-primary" value="<?php esc_attr_e( 'Apply Template', 'secure-freelancer-access' ); ?>">
+						</p>
+					</form>
+				<?php endif; ?>
+			</div>
+
+			<!-- Create Template from User -->
+			<div class="rpa-settings-section" style="flex: 1; min-width: 300px;">
+				<h3><?php esc_html_e( 'Create Template from User', 'secure-freelancer-access' ); ?></h3>
+
+				<?php if ( empty( $users ) ) : ?>
+					<p class="description"><?php esc_html_e( 'No restricted users found.', 'secure-freelancer-access' ); ?></p>
+				<?php else : ?>
+					<form method="post" action="">
+						<?php wp_nonce_field( 'rpa_create_template_from_user', 'rpa_nonce' ); ?>
+						<input type="hidden" name="rpa_action" value="create_template_from_user">
+
+						<p>
+							<label for="rpa-create-from-user"><?php esc_html_e( 'Copy access from:', 'secure-freelancer-access' ); ?></label><br>
+							<select name="user_id" id="rpa-create-from-user" style="width: 100%;">
+								<?php foreach ( $users as $user ) : ?>
+									<option value="<?php echo esc_attr( $user->ID ); ?>"><?php echo esc_html( $user->display_name . ' (' . $user->user_login . ')' ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</p>
+
+						<p>
+							<label for="rpa-new-template-name"><?php esc_html_e( 'Template Name:', 'secure-freelancer-access' ); ?></label><br>
+							<input type="text" name="template_name" id="rpa-new-template-name" style="width: 100%;" required>
+						</p>
+
+						<p>
+							<input type="submit" class="button button-primary" value="<?php esc_attr_e( 'Create Template', 'secure-freelancer-access' ); ?>">
+						</p>
+					</form>
+				<?php endif; ?>
+			</div>
+
+		</div>
 		<?php
 	}
 }
