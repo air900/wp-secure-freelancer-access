@@ -35,6 +35,9 @@ tests/
 # Debug
 /debug/
 
+# Dev docs (local only)
+/dev/
+
 # Build artifacts
 *.zip
 /dist/
