@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Secure Freelancer Access
  * Description: Securely grant freelancers access to specific pages and posts only.
- * Version: 1.1.18
+ * Version: 2.0.1
  * Author: air900
  * Text Domain: secure-freelancer-access
  * Domain Path: /languages
@@ -16,13 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Константы плагина
 define( 'RPA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RPA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'RPA_VERSION', '1.1.18' );
+define( 'RPA_VERSION', '2.0.1' );
 
 // Подключение классов
 require_once RPA_PLUGIN_DIR . 'includes/class-user-meta-handler.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-access-filter.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-post-access.php';
 require_once RPA_PLUGIN_DIR . 'includes/class-admin-page.php';
+require_once RPA_PLUGIN_DIR . 'includes/class-settings.php';
+require_once RPA_PLUGIN_DIR . 'includes/class-rest-api-filter.php';
 
 // Загрузка текстового домена для локализации
 add_action( 'plugins_loaded', 'rpa_load_textdomain' );
@@ -35,9 +37,11 @@ function rpa_load_textdomain() {
 add_action( 'plugins_loaded', function() {
 	// Инициализируем основные классы
 	// RPA_User_Meta_Handler - статический хелпер, инициализация не требуется
+	// RPA_Settings - статический хелпер, инициализация не требуется
 	new RPA_Admin_Page();
 	new RPA_Access_Filter();
 	new RPA_Post_Access();
+	new RPA_REST_API_Filter();
 } );
 
 // Добавить ссылку Settings в строке плагина

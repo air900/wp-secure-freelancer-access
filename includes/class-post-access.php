@@ -16,11 +16,26 @@ class RPA_Post_Access {
 	}
 
 	/**
+	 * Check if current user should be checked for access.
+	 *
+	 * @return bool
+	 */
+	private function should_check_user() {
+		// Admins are never checked
+		if ( current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		// Check if user's role is in restricted list
+		return RPA_Settings::is_current_user_restricted();
+	}
+
+	/**
 	 * Проверка доступа.
 	 */
 	public function check_post_access() {
-		// Админам можно всё
-		if ( current_user_can( 'manage_options' ) ) {
+		// Check if we should restrict this user
+		if ( ! $this->should_check_user() ) {
 			return;
 		}
 
@@ -36,22 +51,24 @@ class RPA_Post_Access {
 		}
 
 		$user_id = get_current_user_id();
-		$is_allowed = false;
 
-		if ( 'page' === $post->post_type ) {
-			$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_pages( $user_id );
-			if ( in_array( $post_id, $allowed_ids, true ) ) {
-				$is_allowed = true;
-			}
-		} elseif ( 'post' === $post->post_type ) {
-			$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
-			if ( in_array( $post_id, $allowed_ids, true ) ) {
-				$is_allowed = true;
-			}
-		} else {
-			// Для других типов постов пока разрешаем (или можно запретить по умолчанию)
-			$is_allowed = true;
+		// Check if access is expired (temporary access)
+		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+			$this->log_access_attempt( $user_id, $post_id );
+			wp_die(
+				esc_html__( 'Your access has expired.', 'secure-freelancer-access' ),
+				esc_html__( 'Access Expired', 'secure-freelancer-access' ),
+				array( 'response' => 403 )
+			);
 		}
+
+		// Check if this post type is enabled for restriction
+		if ( ! RPA_Settings::is_post_type_enabled( $post->post_type ) ) {
+			return; // This post type is not restricted
+		}
+
+		// Check access
+		$is_allowed = $this->check_user_access( $user_id, $post_id, $post->post_type );
 
 		if ( ! $is_allowed ) {
 			$this->log_access_attempt( $user_id, $post_id );
@@ -61,6 +78,52 @@ class RPA_Post_Access {
 				array( 'response' => 403 )
 			);
 		}
+	}
+
+	/**
+	 * Check if user has access to a specific post.
+	 *
+	 * @param int    $user_id   User ID.
+	 * @param int    $post_id   Post ID.
+	 * @param string $post_type Post type.
+	 * @return bool
+	 */
+	private function check_user_access( $user_id, $post_id, $post_type ) {
+		// Check direct access to post
+		$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+		if ( in_array( $post_id, $allowed_ids, true ) ) {
+			return true;
+		}
+
+		// Check access via taxonomies
+		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+
+		foreach ( $enabled_taxonomies as $taxonomy ) {
+			// Check if taxonomy applies to this post type
+			$tax_object = get_taxonomy( $taxonomy );
+			if ( ! $tax_object || ! in_array( $post_type, $tax_object->object_type, true ) ) {
+				continue;
+			}
+
+			// Get allowed terms for this taxonomy
+			$allowed_terms = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+			if ( empty( $allowed_terms ) ) {
+				continue;
+			}
+
+			// Check if post is in any of the allowed terms
+			$post_terms = wp_get_object_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
+			if ( is_wp_error( $post_terms ) ) {
+				continue;
+			}
+
+			$common_terms = array_intersect( $post_terms, $allowed_terms );
+			if ( ! empty( $common_terms ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

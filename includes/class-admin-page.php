@@ -97,6 +97,28 @@ class RPA_Admin_Page {
 			wp_redirect( add_query_arg( array( 'page' => $this->page_slug, 'message' => 'saved', 'edit_user' => $user_id ), admin_url( 'options-general.php' ) ) );
 			exit;
 		}
+
+		// Save plugin settings
+		if ( 'save_settings' === $_POST['rpa_action'] ) {
+			check_admin_referer( 'rpa_save_settings', 'rpa_nonce' );
+
+			$settings = array(
+				'restricted_roles'        => isset( $_POST['restricted_roles'] ) ? (array) $_POST['restricted_roles'] : array(),
+				'enabled_post_types'      => isset( $_POST['enabled_post_types'] ) ? (array) $_POST['enabled_post_types'] : array(),
+				'enabled_taxonomies'      => isset( $_POST['enabled_taxonomies'] ) ? (array) $_POST['enabled_taxonomies'] : array(),
+				'media_restriction'       => ! empty( $_POST['media_restriction'] ),
+				'woocommerce_products'    => ! empty( $_POST['woocommerce_products'] ),
+				'woocommerce_orders'      => ! empty( $_POST['woocommerce_orders'] ),
+				'woocommerce_coupons'     => ! empty( $_POST['woocommerce_coupons'] ),
+				'elementor_templates'     => ! empty( $_POST['elementor_templates'] ),
+				'elementor_theme_builder' => ! empty( $_POST['elementor_theme_builder'] ),
+			);
+
+			RPA_Settings::save_settings( $settings );
+
+			wp_redirect( add_query_arg( array( 'page' => $this->page_slug, 'view' => 'settings', 'message' => 'settings_saved' ), admin_url( 'options-general.php' ) ) );
+			exit;
+		}
 	}
 
 	/**
@@ -113,8 +135,9 @@ class RPA_Admin_Page {
 			<?php
 			// Tab navigation
 			$tabs = array(
-				'users' => __( 'Users', 'secure-freelancer-access' ),
-				'logs'  => __( 'Access Log', 'secure-freelancer-access' ),
+				'users'    => __( 'Users', 'secure-freelancer-access' ),
+				'logs'     => __( 'Access Log', 'secure-freelancer-access' ),
+				'settings' => __( 'Settings', 'secure-freelancer-access' ),
 			);
 
 			echo '<h2 class="nav-tab-wrapper">';
@@ -132,12 +155,17 @@ class RPA_Admin_Page {
 			if ( isset( $_GET['message'] ) && 'logs_cleared' === $_GET['message'] ) {
 				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Access log cleared.', 'secure-freelancer-access' ) . '</p></div>';
 			}
+			if ( isset( $_GET['message'] ) && 'settings_saved' === $_GET['message'] ) {
+				echo '<div class="notice notice-success is-dismissible rpa-notice"><p>' . esc_html__( 'Settings saved successfully.', 'secure-freelancer-access' ) . '</p></div>';
+			}
 
 			// Display appropriate view
 			if ( $edit_user_id ) {
 				$this->render_edit_form( $edit_user_id );
 			} elseif ( 'logs' === $current_view ) {
 				$this->render_logs();
+			} elseif ( 'settings' === $current_view ) {
+				$this->render_settings();
 			} else {
 				$this->render_user_list();
 			}
@@ -147,14 +175,33 @@ class RPA_Admin_Page {
 	}
 
 	/**
-	 * Display list of editor users.
+	 * Display list of restricted users.
 	 */
 	private function render_user_list() {
-		$editors = get_users( array( 'role' => 'editor' ) );
+		$restricted_roles = RPA_Settings::get( 'restricted_roles', array( 'editor' ) );
 
-		if ( empty( $editors ) ) {
+		if ( empty( $restricted_roles ) ) {
 			echo '<div class="rpa-empty-state">';
-			echo '<p>' . esc_html__( 'No users with "Editor" role found.', 'secure-freelancer-access' ) . '</p>';
+			echo '<p>' . esc_html__( 'No roles selected for restriction. Go to Settings tab to configure.', 'secure-freelancer-access' ) . '</p>';
+			echo '</div>';
+			return;
+		}
+
+		// Get users with any of the restricted roles
+		$users = get_users( array( 'role__in' => $restricted_roles ) );
+
+		if ( empty( $users ) ) {
+			$role_names = array_map( function( $role ) {
+				$wp_roles = wp_roles();
+				return isset( $wp_roles->roles[ $role ] ) ? translate_user_role( $wp_roles->roles[ $role ]['name'] ) : $role;
+			}, $restricted_roles );
+
+			echo '<div class="rpa-empty-state">';
+			echo '<p>' . esc_html( sprintf(
+				/* translators: %s: list of role names */
+				__( 'No users found with roles: %s', 'secure-freelancer-access' ),
+				implode( ', ', $role_names )
+			) ) . '</p>';
 			echo '</div>';
 			return;
 		}
@@ -162,24 +209,53 @@ class RPA_Admin_Page {
 		echo '<table class="wp-list-table widefat fixed striped">';
 		echo '<thead><tr>';
 		echo '<th>' . esc_html__( 'User', 'secure-freelancer-access' ) . '</th>';
-		echo '<th>' . esc_html__( 'Email', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Role', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Access (Pages)', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Access (Posts)', 'secure-freelancer-access' ) . '</th>';
+		echo '<th>' . esc_html__( 'Schedule', 'secure-freelancer-access' ) . '</th>';
 		echo '<th>' . esc_html__( 'Actions', 'secure-freelancer-access' ) . '</th>';
 		echo '</tr></thead>';
 		echo '<tbody>';
 
-		foreach ( $editors as $user ) {
+		foreach ( $users as $user ) {
 			$allowed_pages = RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID );
 			$allowed_posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID );
+			$schedule = RPA_User_Meta_Handler::get_user_access_schedule( $user->ID );
+			$is_active = RPA_User_Meta_Handler::is_user_access_active( $user->ID );
+
+			// Get user role name
+			$user_roles = array_intersect( $user->roles, $restricted_roles );
+			$role_name = '';
+			if ( ! empty( $user_roles ) ) {
+				$wp_roles = wp_roles();
+				$role_key = reset( $user_roles );
+				$role_name = isset( $wp_roles->roles[ $role_key ] ) ? translate_user_role( $wp_roles->roles[ $role_key ]['name'] ) : $role_key;
+			}
 
 			$edit_link = add_query_arg( array( 'page' => $this->page_slug, 'edit_user' => $user->ID ), admin_url( 'options-general.php' ) );
 
-			echo '<tr>';
+			$schedule_text = '-';
+			$schedule_class = '';
+			if ( $schedule ) {
+				if ( ! $is_active ) {
+					$schedule_text = __( 'Expired', 'secure-freelancer-access' );
+					$schedule_class = 'rpa-schedule-expired';
+				} elseif ( ! empty( $schedule['end_date'] ) ) {
+					$schedule_text = sprintf(
+						/* translators: %s: end date */
+						__( 'Until %s', 'secure-freelancer-access' ),
+						date_i18n( get_option( 'date_format' ), strtotime( $schedule['end_date'] ) )
+					);
+					$schedule_class = 'rpa-schedule-active';
+				}
+			}
+
+			echo '<tr' . ( ! $is_active ? ' class="rpa-row-expired"' : '' ) . '>';
 			echo '<td><strong>' . esc_html( $user->display_name ) . '</strong><br><small>' . esc_html( $user->user_login ) . '</small></td>';
-			echo '<td>' . esc_html( $user->user_email ) . '</td>';
+			echo '<td><span class="rpa-role-badge">' . esc_html( $role_name ) . '</span></td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_pages ) . '</span></td>';
 			echo '<td><span class="rpa-user-count">' . count( $allowed_posts ) . '</span></td>';
+			echo '<td><span class="' . esc_attr( $schedule_class ) . '">' . esc_html( $schedule_text ) . '</span></td>';
 			echo '<td><a href="' . esc_url( $edit_link ) . '" class="button button-small">' . esc_html__( 'Edit Access', 'secure-freelancer-access' ) . '</a></td>';
 			echo '</tr>';
 		}
@@ -490,6 +566,173 @@ class RPA_Admin_Page {
 			<?php wp_nonce_field( 'rpa_clear_logs', 'rpa_nonce' ); ?>
 			<input type="hidden" name="rpa_action" value="clear_logs">
 			<input type="submit" class="button" value="<?php esc_attr_e( 'Clear Log', 'secure-freelancer-access' ); ?>" onclick="return confirm('<?php esc_attr_e( 'Are you sure?', 'secure-freelancer-access' ); ?>');">
+		</form>
+		<?php
+	}
+
+	/**
+	 * Display plugin settings.
+	 */
+	private function render_settings() {
+		$settings = RPA_Settings::get_settings();
+		$available_roles = RPA_Settings::get_available_roles();
+		$available_post_types = RPA_Settings::get_available_post_types();
+		$available_taxonomies = RPA_Settings::get_available_taxonomies();
+
+		$is_woocommerce_active = RPA_Settings::is_woocommerce_active();
+		$is_elementor_active = RPA_Settings::is_elementor_active();
+		$is_elementor_pro_active = RPA_Settings::is_elementor_pro_active();
+
+		?>
+		<form method="post" action="">
+			<?php wp_nonce_field( 'rpa_save_settings', 'rpa_nonce' ); ?>
+			<input type="hidden" name="rpa_action" value="save_settings">
+
+			<div class="rpa-settings-container">
+
+				<!-- Restricted Roles Section -->
+				<div class="rpa-settings-section">
+					<h3><?php esc_html_e( 'Restricted Roles', 'secure-freelancer-access' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Select which user roles should have restricted content access. Administrators are never restricted.', 'secure-freelancer-access' ); ?></p>
+
+					<div class="rpa-checkbox-grid">
+						<?php foreach ( $available_roles as $role_key => $role_name ) : ?>
+							<label class="rpa-checkbox-item">
+								<input type="checkbox" name="restricted_roles[]" value="<?php echo esc_attr( $role_key ); ?>"
+									<?php checked( in_array( $role_key, $settings['restricted_roles'], true ) ); ?>>
+								<span><?php echo esc_html( $role_name ); ?></span>
+							</label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+
+				<!-- Content Types Section -->
+				<div class="rpa-settings-section">
+					<h3><?php esc_html_e( 'Content Types', 'secure-freelancer-access' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Select which content types should be restricted for the selected roles.', 'secure-freelancer-access' ); ?></p>
+
+					<div class="rpa-checkbox-grid">
+						<?php foreach ( $available_post_types as $type_key => $type_name ) : ?>
+							<label class="rpa-checkbox-item">
+								<input type="checkbox" name="enabled_post_types[]" value="<?php echo esc_attr( $type_key ); ?>"
+									<?php checked( in_array( $type_key, $settings['enabled_post_types'], true ) ); ?>>
+								<span><?php echo esc_html( $type_name ); ?></span>
+							</label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+
+				<!-- Taxonomies Section -->
+				<div class="rpa-settings-section">
+					<h3><?php esc_html_e( 'Taxonomies (Category-based Access)', 'secure-freelancer-access' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Enable access control by taxonomies (categories, tags). Users can be granted access to all content within specific categories.', 'secure-freelancer-access' ); ?></p>
+
+					<div class="rpa-checkbox-grid">
+						<?php foreach ( $available_taxonomies as $tax_key => $tax_name ) : ?>
+							<label class="rpa-checkbox-item">
+								<input type="checkbox" name="enabled_taxonomies[]" value="<?php echo esc_attr( $tax_key ); ?>"
+									<?php checked( in_array( $tax_key, $settings['enabled_taxonomies'], true ) ); ?>>
+								<span><?php echo esc_html( $tax_name ); ?></span>
+							</label>
+						<?php endforeach; ?>
+					</div>
+				</div>
+
+				<!-- Media Library Section -->
+				<div class="rpa-settings-section">
+					<h3><?php esc_html_e( 'Media Library', 'secure-freelancer-access' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Control access to media files in the Media Library.', 'secure-freelancer-access' ); ?></p>
+
+					<label class="rpa-checkbox-item">
+						<input type="checkbox" name="media_restriction" value="1"
+							<?php checked( $settings['media_restriction'] ); ?>>
+						<span><?php esc_html_e( 'Restrict media library access', 'secure-freelancer-access' ); ?></span>
+					</label>
+					<p class="description" style="margin-left: 24px;"><?php esc_html_e( 'Users will only see: their own uploads, media attached to allowed pages/posts, and additionally assigned media files.', 'secure-freelancer-access' ); ?></p>
+				</div>
+
+				<!-- WooCommerce Integration -->
+				<div class="rpa-settings-section <?php echo ! $is_woocommerce_active ? 'rpa-section-disabled' : ''; ?>">
+					<h3>
+						<?php esc_html_e( 'WooCommerce Integration', 'secure-freelancer-access' ); ?>
+						<?php if ( ! $is_woocommerce_active ) : ?>
+							<span class="rpa-plugin-status rpa-inactive"><?php esc_html_e( 'Not installed', 'secure-freelancer-access' ); ?></span>
+						<?php else : ?>
+							<span class="rpa-plugin-status rpa-active"><?php esc_html_e( 'Active', 'secure-freelancer-access' ); ?></span>
+						<?php endif; ?>
+					</h3>
+
+					<?php if ( ! $is_woocommerce_active ) : ?>
+						<p class="description"><?php esc_html_e( 'Install and activate WooCommerce to enable these options.', 'secure-freelancer-access' ); ?></p>
+					<?php else : ?>
+						<p class="description"><?php esc_html_e( 'Control access to WooCommerce content.', 'secure-freelancer-access' ); ?></p>
+					<?php endif; ?>
+
+					<div class="rpa-checkbox-grid">
+						<label class="rpa-checkbox-item">
+							<input type="checkbox" name="woocommerce_products" value="1"
+								<?php checked( $settings['woocommerce_products'] ); ?>
+								<?php disabled( ! $is_woocommerce_active ); ?>>
+							<span><?php esc_html_e( 'Products', 'secure-freelancer-access' ); ?></span>
+						</label>
+						<label class="rpa-checkbox-item">
+							<input type="checkbox" name="woocommerce_orders" value="1"
+								<?php checked( $settings['woocommerce_orders'] ); ?>
+								<?php disabled( ! $is_woocommerce_active ); ?>>
+							<span><?php esc_html_e( 'Orders', 'secure-freelancer-access' ); ?></span>
+						</label>
+						<label class="rpa-checkbox-item">
+							<input type="checkbox" name="woocommerce_coupons" value="1"
+								<?php checked( $settings['woocommerce_coupons'] ); ?>
+								<?php disabled( ! $is_woocommerce_active ); ?>>
+							<span><?php esc_html_e( 'Coupons', 'secure-freelancer-access' ); ?></span>
+						</label>
+					</div>
+				</div>
+
+				<!-- Elementor Integration -->
+				<div class="rpa-settings-section <?php echo ! $is_elementor_active ? 'rpa-section-disabled' : ''; ?>">
+					<h3>
+						<?php esc_html_e( 'Elementor Integration', 'secure-freelancer-access' ); ?>
+						<?php if ( ! $is_elementor_active ) : ?>
+							<span class="rpa-plugin-status rpa-inactive"><?php esc_html_e( 'Not installed', 'secure-freelancer-access' ); ?></span>
+						<?php else : ?>
+							<span class="rpa-plugin-status rpa-active"><?php esc_html_e( 'Active', 'secure-freelancer-access' ); ?></span>
+						<?php endif; ?>
+					</h3>
+
+					<?php if ( ! $is_elementor_active ) : ?>
+						<p class="description"><?php esc_html_e( 'Install and activate Elementor to enable these options.', 'secure-freelancer-access' ); ?></p>
+					<?php else : ?>
+						<p class="description"><?php esc_html_e( 'Control access to Elementor templates and theme builder elements.', 'secure-freelancer-access' ); ?></p>
+					<?php endif; ?>
+
+					<div class="rpa-checkbox-grid">
+						<label class="rpa-checkbox-item">
+							<input type="checkbox" name="elementor_templates" value="1"
+								<?php checked( $settings['elementor_templates'] ); ?>
+								<?php disabled( ! $is_elementor_active ); ?>>
+							<span><?php esc_html_e( 'Saved Templates', 'secure-freelancer-access' ); ?></span>
+						</label>
+						<label class="rpa-checkbox-item">
+							<input type="checkbox" name="elementor_theme_builder" value="1"
+								<?php checked( $settings['elementor_theme_builder'] ); ?>
+								<?php disabled( ! $is_elementor_pro_active ); ?>>
+							<span>
+								<?php esc_html_e( 'Theme Builder', 'secure-freelancer-access' ); ?>
+								<?php if ( $is_elementor_active && ! $is_elementor_pro_active ) : ?>
+									<em class="rpa-requires-pro">(<?php esc_html_e( 'Requires Elementor Pro', 'secure-freelancer-access' ); ?>)</em>
+								<?php endif; ?>
+							</span>
+						</label>
+					</div>
+				</div>
+
+			</div>
+
+			<p class="submit">
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Settings', 'secure-freelancer-access' ); ?>">
+			</p>
 		</form>
 		<?php
 	}
