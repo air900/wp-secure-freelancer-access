@@ -40,8 +40,11 @@ tests/
 /dist/
 /build/
 
-# Development notes (may contain credentials)
+# Development notes (local only, may contain credentials)
 idea.md
+claude.md
+CLAUDE.md
+INSTALLATION.md
 
 # Playwright
 /test-results/
