@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Secure Freelancer Access
  * Description: Securely grant freelancers access to specific pages and posts only.
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: air900
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Константы плагина
 define( 'RPA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RPA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'RPA_VERSION', '2.0.2' );
+define( 'RPA_VERSION', '2.0.3' );
 
 // Подключение классов
 require_once RPA_PLUGIN_DIR . 'includes/class-user-meta-handler.php';

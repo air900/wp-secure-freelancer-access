@@ -27,7 +27,7 @@ class RPA_Export_Import {
 
 		$export_data = $this->generate_export_data();
 
-		$filename = 'rpa-export-' . date( 'Y-m-d-His' ) . '.json';
+		$filename = 'rpa-export-' . gmdate( 'Y-m-d-His' ) . '.json';
 
 		header( 'Content-Type: application/json' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
@@ -52,7 +52,11 @@ class RPA_Export_Import {
 
 		check_admin_referer( 'rpa_import', 'rpa_nonce' );
 
-		if ( ! isset( $_FILES['import_file'] ) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK ) {
+		// Validate file upload
+		if ( ! isset( $_FILES['import_file'] ) ||
+			 ! isset( $_FILES['import_file']['error'] ) ||
+			 ! isset( $_FILES['import_file']['tmp_name'] ) ||
+			 $_FILES['import_file']['error'] !== UPLOAD_ERR_OK ) {
 			wp_safe_redirect( add_query_arg( array(
 				'page' => 'secure-freelancer-access',
 				'view' => 'settings',
@@ -61,7 +65,9 @@ class RPA_Export_Import {
 			exit;
 		}
 
-		$file_content = file_get_contents( $_FILES['import_file']['tmp_name'] );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File path from PHP, used with file_get_contents
+		$tmp_name = sanitize_text_field( wp_unslash( $_FILES['import_file']['tmp_name'] ) );
+		$file_content = file_get_contents( $tmp_name );
 		$import_data = json_decode( $file_content, true );
 
 		if ( ! $import_data || ! isset( $import_data['version'] ) ) {

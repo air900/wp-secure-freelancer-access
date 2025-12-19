@@ -139,13 +139,15 @@ class RPA_Admin_Page {
 		if ( 'save_template' === $_POST['rpa_action'] ) {
 			check_admin_referer( 'rpa_save_template', 'rpa_nonce' );
 
-			$template_id = isset( $_POST['template_id'] ) ? sanitize_key( $_POST['template_id'] ) : '';
+			$template_id = isset( $_POST['template_id'] ) ? sanitize_key( wp_unslash( $_POST['template_id'] ) ) : '';
 			$template_data = array(
-				'name'        => isset( $_POST['template_name'] ) ? $_POST['template_name'] : '',
-				'description' => isset( $_POST['template_description'] ) ? $_POST['template_description'] : '',
+				'name'        => isset( $_POST['template_name'] ) ? sanitize_text_field( wp_unslash( $_POST['template_name'] ) ) : '',
+				'description' => isset( $_POST['template_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['template_description'] ) ) : '',
 				'content'     => array(
-					'page' => isset( $_POST['template_pages'] ) ? (array) $_POST['template_pages'] : array(),
-					'post' => isset( $_POST['template_posts'] ) ? (array) $_POST['template_posts'] : array(),
+					// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by array_map intval
+					'page' => isset( $_POST['template_pages'] ) ? array_map( 'intval', wp_unslash( (array) $_POST['template_pages'] ) ) : array(),
+					// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by array_map intval
+					'post' => isset( $_POST['template_posts'] ) ? array_map( 'intval', wp_unslash( (array) $_POST['template_posts'] ) ) : array(),
 				),
 			);
 
@@ -189,7 +191,7 @@ class RPA_Admin_Page {
 			check_admin_referer( 'rpa_create_template_from_user', 'rpa_nonce' );
 
 			$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
-			$template_name = isset( $_POST['template_name'] ) ? sanitize_text_field( $_POST['template_name'] ) : '';
+			$template_name = isset( $_POST['template_name'] ) ? sanitize_text_field( wp_unslash( $_POST['template_name'] ) ) : '';
 
 			if ( $user_id && $template_name ) {
 				$user = get_userdata( $user_id );
@@ -722,6 +724,7 @@ class RPA_Admin_Page {
 			<?php
 			echo esc_html(
 				sprintf(
+					/* translators: %s: Plugin version number */
 					__( 'Secure Freelancer Access Plugin - Version %s', 'secure-freelancer-access' ),
 					RPA_VERSION
 				)
