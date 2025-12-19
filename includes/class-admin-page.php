@@ -23,8 +23,8 @@ class RPA_Admin_Page {
 	 */
 	public function register_menu() {
 		add_options_page(
-			__( 'Content Access Restriction', 'secure-freelancer-access' ),
-			__( 'Content Access Restriction', 'secure-freelancer-access' ),
+			__( 'Secure Freelancer Access', 'secure-freelancer-access' ),
+			__( 'Secure Freelancer Access', 'secure-freelancer-access' ),
 			'manage_options',
 			$this->page_slug,
 			array( $this, 'render_admin_page' )
@@ -233,7 +233,7 @@ class RPA_Admin_Page {
 
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Content Access Restriction', 'secure-freelancer-access' ); ?></h1>
+			<h1><?php esc_html_e( 'Secure Freelancer Access', 'secure-freelancer-access' ); ?></h1>
 
 			<?php
 			// Tab navigation

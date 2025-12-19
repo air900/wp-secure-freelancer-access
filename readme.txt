@@ -3,7 +3,7 @@ Contributors: air900
 Tags: permissions, roles, access control, editor, restrict
 Requires at least: 5.8
 Tested up to: 6.9
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -143,6 +143,10 @@ No. The plugin only works in the admin panel and doesn't affect the frontend. Al
 
 == Changelog ==
 
+= 2.0.4 (2025-12-19) =
+* Updated admin UI labels to match plugin name
+* Renamed "Content Access Restriction" to "Secure Freelancer Access" throughout
+
 = 2.0.3 (2025-12-19) =
 * Fixed Plugin Check errors
 * Added translators comments
@@ -179,6 +183,9 @@ No. The plugin only works in the admin panel and doesn't affect the frontend. Al
 * Security (nonce, validation, sanitization)
 
 == Upgrade Notice ==
+
+= 2.0.4 =
+Updated admin UI labels to match plugin name.
 
 = 2.0.3 =
 Plugin Check fixes and improved compatibility with WordPress.org standards.

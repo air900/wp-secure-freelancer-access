@@ -22,7 +22,7 @@ class RPA_Dashboard_Widget {
 		if ( current_user_can( 'manage_options' ) ) {
 			wp_add_dashboard_widget(
 				'rpa_admin_widget',
-				__( 'Content Access Restriction', 'secure-freelancer-access' ),
+				__( 'Secure Freelancer Access', 'secure-freelancer-access' ),
 				array( $this, 'render_admin_widget' )
 			);
 		}
