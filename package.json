@@ -4,7 +4,9 @@
   "description": "Плагин для WordPress, который позволяет ограничивать доступ пользователей с ролью **Editor** (Редактор) к конкретным страницам и записям в административной панели.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed"
   },
   "repository": {
     "type": "git",
@@ -18,6 +20,6 @@
   },
   "homepage": "https://github.com/air900/wp-secure-freelancer-access#readme",
   "devDependencies": {
-    "playwright": "^1.57.0"
+    "@playwright/test": "^1.57.0"
   }
 }

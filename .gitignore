@@ -50,6 +50,8 @@ CLAUDE.md
 INSTALLATION.md
 
 # Playwright
+/e2e/
+playwright.config.js
 /test-results/
 /playwright-report/
 /playwright/.cache/
