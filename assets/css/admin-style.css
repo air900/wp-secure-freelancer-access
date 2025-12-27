@@ -1,10 +1,10 @@
-.rpa-edit-form-container {
+.sfaccess-edit-form-container {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
 }
 
-.rpa-content-block {
+.sfaccess-content-block {
     flex: 1;
     min-width: 350px;
     background: #fff;
@@ -13,7 +13,7 @@
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
 
-.rpa-content-list {
+.sfaccess-content-list {
     max-height: 400px;
     overflow-y: auto;
     border: 1px solid #dcdcde;
@@ -22,39 +22,39 @@
     background: #fcfcfc;
 }
 
-.rpa-content-list label {
+.sfaccess-content-list label {
     display: block;
     padding: 3px 0;
     border-bottom: 1px solid #f0f0f1;
 }
 
-.rpa-content-list label:last-child {
+.sfaccess-content-list label:last-child {
     border-bottom: none;
 }
 
-.rpa-content-list label:hover {
+.sfaccess-content-list label:hover {
     background-color: #f0f6fc;
 }
 
-.rpa-content-status {
+.sfaccess-content-status {
     color: #8c8f94;
     font-size: 0.9em;
     margin-left: 5px;
 }
 
 /* Controls */
-.rpa-controls {
+.sfaccess-controls {
     margin-bottom: 15px;
     background: #f6f7f7;
     padding: 10px;
     border: 1px solid #dcdcde;
 }
 
-.rpa-search-wrapper {
+.sfaccess-search-wrapper {
     margin-bottom: 10px;
 }
 
-.rpa-search-input {
+.sfaccess-search-input {
     width: 100%;
     padding: 0 8px 0 32px !important;
     height: 36px;
@@ -66,46 +66,46 @@
     background-size: 16px 16px;
 }
 
-.rpa-filters-row {
+.sfaccess-filters-row {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.rpa-filter-group {
+.sfaccess-filter-group {
     flex: 1;
 }
 
-.rpa-filter-group label {
+.sfaccess-filter-group label {
     display: block;
     font-size: 11px;
     color: #646970;
     margin-bottom: 2px;
 }
 
-.rpa-filter-group select {
+.sfaccess-filter-group select {
     width: 100%;
     font-size: 12px;
 }
 
 /* Badges */
-#rpa-selected-summary {
+#sfaccess-selected-summary {
     background: #fff;
     border: 1px solid #c3c4c7;
     padding: 15px;
     border-left: 4px solid #72aee6;
 }
 
-.rpa-badge-group {
+.sfaccess-badge-group {
     margin-bottom: 10px;
 }
 
-.rpa-badges-container {
+.sfaccess-badges-container {
     margin-top: 5px;
     line-height: 1.8;
 }
 
-.rpa-badge {
+.sfaccess-badge {
     display: inline-block;
     background: #e5e5e5;
     padding: 2px 8px;
@@ -115,7 +115,7 @@
     border: 1px solid #ccc;
 }
 
-.rpa-unsaved-indicator {
+.sfaccess-unsaved-indicator {
     display: none;
     color: #d63638;
     font-weight: bold;
@@ -126,12 +126,12 @@
     border-radius: 4px;
 }
 
-.rpa-back-link {
+.sfaccess-back-link {
     text-decoration: none;
     font-weight: 500;
 }
 
-.rpa-user-count {
+.sfaccess-user-count {
     background: #e5e5e5;
     padding: 2px 6px;
     border-radius: 10px;
@@ -139,7 +139,7 @@
     font-size: 11px;
 }
 
-.rpa-empty-state {
+.sfaccess-empty-state {
     padding: 20px;
     text-align: center;
     color: #646970;
@@ -147,15 +147,15 @@
     border: 1px solid #c3c4c7;
 }
 
-.rpa-log-time { white-space: nowrap; color: #646970; }
-.rpa-log-ip { font-family: monospace; }
+.sfaccess-log-time { white-space: nowrap; color: #646970; }
+.sfaccess-log-ip { font-family: monospace; }
 
 /* Settings Page */
-.rpa-settings-container {
+.sfaccess-settings-container {
     max-width: 800px;
 }
 
-.rpa-settings-section {
+.sfaccess-settings-section {
     background: #fff;
     border: 1px solid #c3c4c7;
     padding: 20px;
@@ -163,7 +163,7 @@
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
 
-.rpa-settings-section h3 {
+.sfaccess-settings-section h3 {
     margin-top: 0;
     margin-bottom: 10px;
     padding-bottom: 10px;
@@ -173,19 +173,19 @@
     gap: 10px;
 }
 
-.rpa-settings-section .description {
+.sfaccess-settings-section .description {
     color: #646970;
     font-size: 13px;
     margin-bottom: 15px;
 }
 
-.rpa-checkbox-grid {
+.sfaccess-checkbox-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
 }
 
-.rpa-checkbox-item {
+.sfaccess-checkbox-item {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -197,62 +197,62 @@
     transition: background-color 0.2s;
 }
 
-.rpa-checkbox-item:hover {
+.sfaccess-checkbox-item:hover {
     background: #f0f6fc;
     border-color: #72aee6;
 }
 
-.rpa-checkbox-item input[type="checkbox"] {
+.sfaccess-checkbox-item input[type="checkbox"] {
     margin: 0;
 }
 
-.rpa-checkbox-item input[type="checkbox"]:checked + span {
+.sfaccess-checkbox-item input[type="checkbox"]:checked + span {
     font-weight: 500;
 }
 
-.rpa-checkbox-item input[type="checkbox"]:disabled {
+.sfaccess-checkbox-item input[type="checkbox"]:disabled {
     opacity: 0.5;
 }
 
-.rpa-checkbox-item input[type="checkbox"]:disabled + span {
+.sfaccess-checkbox-item input[type="checkbox"]:disabled + span {
     color: #a7aaad;
 }
 
 /* Plugin Status Badges */
-.rpa-plugin-status {
+.sfaccess-plugin-status {
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 3px;
     font-weight: normal;
 }
 
-.rpa-plugin-status.rpa-active {
+.sfaccess-plugin-status.sfaccess-active {
     background: #d4edda;
     color: #155724;
 }
 
-.rpa-plugin-status.rpa-inactive {
+.sfaccess-plugin-status.sfaccess-inactive {
     background: #f8d7da;
     color: #721c24;
 }
 
 /* Disabled Section */
-.rpa-section-disabled {
+.sfaccess-section-disabled {
     opacity: 0.7;
 }
 
-.rpa-section-disabled .rpa-checkbox-item {
+.sfaccess-section-disabled .sfaccess-checkbox-item {
     cursor: not-allowed;
 }
 
-.rpa-requires-pro {
+.sfaccess-requires-pro {
     font-size: 11px;
     color: #a7aaad;
     font-style: italic;
 }
 
 /* Counter */
-.rpa-counter {
+.sfaccess-counter {
     font-size: 12px;
     color: #646970;
     font-weight: normal;
@@ -260,18 +260,18 @@
 }
 
 /* Button Group */
-.rpa-button-group {
+.sfaccess-button-group {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
 }
 
-.rpa-button-group .button {
+.sfaccess-button-group .button {
     font-size: 12px;
 }
 
 /* Role Badge */
-.rpa-role-badge {
+.sfaccess-role-badge {
     display: inline-block;
     background: #e0e0e0;
     padding: 2px 8px;
@@ -281,23 +281,23 @@
 }
 
 /* Schedule Indicators */
-.rpa-schedule-active {
+.sfaccess-schedule-active {
     color: #00a32a;
     font-weight: 500;
 }
 
-.rpa-schedule-expired {
+.sfaccess-schedule-expired {
     color: #d63638;
     font-weight: 500;
 }
 
-.rpa-row-expired {
+.sfaccess-row-expired {
     opacity: 0.6;
     background-color: #fff5f5 !important;
 }
 
 /* Temporary Access Section */
-.rpa-schedule-section {
+.sfaccess-schedule-section {
     background: #f6f7f7;
     border: 1px solid #dcdcde;
     padding: 15px;
@@ -305,34 +305,34 @@
     border-radius: 4px;
 }
 
-.rpa-schedule-section h4 {
+.sfaccess-schedule-section h4 {
     margin-top: 0;
     margin-bottom: 10px;
 }
 
-.rpa-schedule-fields {
+.sfaccess-schedule-fields {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
 }
 
-.rpa-schedule-field {
+.sfaccess-schedule-field {
     flex: 1;
     min-width: 150px;
 }
 
-.rpa-schedule-field label {
+.sfaccess-schedule-field label {
     display: block;
     font-size: 12px;
     color: #646970;
     margin-bottom: 4px;
 }
 
-.rpa-schedule-field input[type="date"] {
+.sfaccess-schedule-field input[type="date"] {
     width: 100%;
 }
 
-.rpa-schedule-notice {
+.sfaccess-schedule-notice {
     margin-top: 10px;
     padding: 8px 12px;
     background: #fff8e5;
@@ -341,13 +341,13 @@
 }
 
 /* Content Type Tabs */
-.rpa-content-tabs {
+.sfaccess-content-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
 
-.rpa-content-tab {
+.sfaccess-content-tab {
     flex: 1;
     min-width: 300px;
 }

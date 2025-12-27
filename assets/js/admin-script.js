@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработка индикатора несохраненных изменений
     const form = document.querySelector('form');
-    const unsavedIndicator = document.querySelector('.rpa-unsaved-indicator');
+    const unsavedIndicator = document.querySelector('.sfaccess-unsaved-indicator');
 
     if (form && unsavedIndicator) {
         form.addEventListener('change', () => {
@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Temporary Access Schedule toggle
-    const enableSchedule = document.getElementById('rpa-enable-schedule');
-    const scheduleFields = document.getElementById('rpa-schedule-fields');
-    const scheduleNotice = document.getElementById('rpa-schedule-notice');
+    const enableSchedule = document.getElementById('sfaccess-enable-schedule');
+    const scheduleFields = document.getElementById('sfaccess-schedule-fields');
+    const scheduleNotice = document.getElementById('sfaccess-schedule-notice');
 
     if (enableSchedule && scheduleFields && scheduleNotice) {
         enableSchedule.addEventListener('change', function() {
@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initGroup(target) {
-    const container = document.querySelector(`.rpa-content-list[data-content-type="${target}"]`);
+    const container = document.querySelector(`.sfaccess-content-list[data-content-type="${target}"]`);
     if (!container) return;
 
     const controls = {
-        search: document.querySelector(`.rpa-search-input[data-target="${target}"]`),
-        status: document.querySelector(`.rpa-status-filter[data-target="${target}"]`),
-        sort: document.querySelector(`.rpa-sort-select[data-target="${target}"]`),
-        visibility: document.querySelector(`.rpa-visibility-filter[data-target="${target}"]`),
-        counter: document.querySelector(`.rpa-counter[data-target="${target}"]`),
-        selectAll: document.querySelector(`.rpa-select-all[data-target="${target}"]`),
-        selectPub: document.querySelector(`.rpa-select-published[data-target="${target}"]`),
-        deselectAll: document.querySelector(`.rpa-deselect-all[data-target="${target}"]`)
+        search: document.querySelector(`.sfaccess-search-input[data-target="${target}"]`),
+        status: document.querySelector(`.sfaccess-status-filter[data-target="${target}"]`),
+        sort: document.querySelector(`.sfaccess-sort-select[data-target="${target}"]`),
+        visibility: document.querySelector(`.sfaccess-visibility-filter[data-target="${target}"]`),
+        counter: document.querySelector(`.sfaccess-counter[data-target="${target}"]`),
+        selectAll: document.querySelector(`.sfaccess-select-all[data-target="${target}"]`),
+        selectPub: document.querySelector(`.sfaccess-select-published[data-target="${target}"]`),
+        deselectAll: document.querySelector(`.sfaccess-deselect-all[data-target="${target}"]`)
     };
 
     const items = Array.from(container.querySelectorAll('label'));
@@ -173,11 +173,11 @@ function initGroup(target) {
 
 // --- Бейджи (Сводка выбранного) ---
 function updateBadges(target) {
-    const container = document.querySelector(`.rpa-content-list[data-content-type="${target}"]`);
-    const badgeContainer = document.getElementById(target === 'allowed_pages' ? 'rpa-badges-pages' : 'rpa-badges-posts');
-    const countSpan = document.getElementById(target === 'allowed_pages' ? 'rpa-badge-pages-count' : 'rpa-badge-posts-count');
-    const summaryBlock = document.getElementById('rpa-selected-summary');
-    const totalSpan = document.getElementById('rpa-selected-total');
+    const container = document.querySelector(`.sfaccess-content-list[data-content-type="${target}"]`);
+    const badgeContainer = document.getElementById(target === 'allowed_pages' ? 'sfaccess-badges-pages' : 'sfaccess-badges-posts');
+    const countSpan = document.getElementById(target === 'allowed_pages' ? 'sfaccess-badge-pages-count' : 'sfaccess-badge-posts-count');
+    const summaryBlock = document.getElementById('sfaccess-selected-summary');
+    const totalSpan = document.getElementById('sfaccess-selected-total');
 
     if (!container || !badgeContainer) return;
 
@@ -192,7 +192,7 @@ function updateBadges(target) {
         const id = input.value;
         
         const badge = document.createElement('span');
-        badge.className = 'rpa-badge';
+        badge.className = 'sfaccess-badge';
         badge.textContent = `${id}: ${title}`;
         badgeContainer.appendChild(badge);
     });
@@ -201,8 +201,8 @@ function updateBadges(target) {
     if (countSpan) countSpan.textContent = checkedItems.length;
     
     // Общий счетчик
-    const totalPages = parseInt(document.getElementById('rpa-badge-pages-count')?.textContent || 0);
-    const totalPosts = parseInt(document.getElementById('rpa-badge-posts-count')?.textContent || 0);
+    const totalPages = parseInt(document.getElementById('sfaccess-badge-pages-count')?.textContent || 0);
+    const totalPosts = parseInt(document.getElementById('sfaccess-badge-posts-count')?.textContent || 0);
     if (totalSpan) totalSpan.textContent = totalPages + totalPosts;
     
     if (summaryBlock) summaryBlock.style.display = (totalPages + totalPosts) > 0 ? 'block' : 'none';
