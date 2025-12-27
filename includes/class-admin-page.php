@@ -44,14 +44,14 @@ class SFAccess_Admin_Page {
 			'sfaccess-admin-style',
 			SFACCESS_PLUGIN_URL . 'assets/css/admin-style.css',
 			array(),
-			SFAccess_VERSION
+			SFACCESS_VERSION
 		);
 
 		wp_enqueue_script(
 			'sfaccess-admin-script',
 			SFACCESS_PLUGIN_URL . 'assets/js/admin-script.js',
 			array(),
-			SFAccess_VERSION,
+			SFACCESS_VERSION,
 			true
 		);
 	}
@@ -726,7 +726,7 @@ class SFAccess_Admin_Page {
 				sprintf(
 					/* translators: %s: Plugin version number */
 					__( 'Secure Freelancer Access Plugin - Version %s', 'secure-freelancer-access' ),
-					SFAccess_VERSION
+					SFACCESS_VERSION
 				)
 			);
 			?>

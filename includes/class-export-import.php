@@ -96,7 +96,7 @@ class SFAccess_Export_Import {
 	 */
 	public function generate_export_data() {
 		$data = array(
-			'version'     => SFAccess_VERSION,
+			'version'     => SFACCESS_VERSION,
 			'exported_at' => current_time( 'c' ),
 			'site_url'    => get_site_url(),
 			'settings'    => SFAccess_Settings::get_settings(),
