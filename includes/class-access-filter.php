@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Access_Filter
+ * Class SFAccess_Access_Filter
  * Фильтрует списки записей и страниц в админке, скрывая недоступные элементы.
  */
-class RPA_Access_Filter {
+class SFAccess_Access_Filter {
 
 	public function __construct() {
 		// Фильтрация основного запроса (списки постов)
@@ -30,13 +30,13 @@ class RPA_Access_Filter {
 		}
 
 		// Check if user's role is in restricted list
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return false;
 		}
 
 		// Check temporary access schedule
 		$user_id = get_current_user_id();
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			return true; // Access expired - filter everything
 		}
 
@@ -71,12 +71,12 @@ class RPA_Access_Filter {
 		}
 
 		// Check if this post type is enabled for restriction
-		if ( ! RPA_Settings::is_post_type_enabled( $post_type ) ) {
+		if ( ! SFAccess_Settings::is_post_type_enabled( $post_type ) ) {
 			return;
 		}
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$query->set( 'post__in', array( 0 ) );
 			return;
 		}
@@ -101,7 +101,7 @@ class RPA_Access_Filter {
 	 */
 	private function get_allowed_ids_for_type( $user_id, $post_type ) {
 		// Get directly allowed IDs
-		$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+		$allowed_ids = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 
 		// Add IDs from allowed taxonomies
 		$taxonomy_ids = $this->get_ids_from_allowed_taxonomies( $user_id, $post_type );
@@ -118,7 +118,7 @@ class RPA_Access_Filter {
 	 * @return array
 	 */
 	private function get_ids_from_allowed_taxonomies( $user_id, $post_type ) {
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 
 		if ( empty( $enabled_taxonomies ) ) {
 			return array();
@@ -134,7 +134,7 @@ class RPA_Access_Filter {
 			}
 
 			// Get allowed terms for this taxonomy
-			$allowed_terms = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+			$allowed_terms = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
 
 			if ( empty( $allowed_terms ) ) {
 				continue;
@@ -172,7 +172,7 @@ class RPA_Access_Filter {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$args['include'] = array( 0 );
 			return $args;
 		}

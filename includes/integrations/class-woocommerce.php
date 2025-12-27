@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_WooCommerce_Integration
+ * Class SFAccess_WooCommerce_Integration
  * Handles WooCommerce content access restrictions.
  *
  * Supports:
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - Orders (shop_order)
  * - Coupons (shop_coupon)
  */
-class RPA_WooCommerce_Integration {
+class SFAccess_WooCommerce_Integration {
 
 	/**
 	 * WooCommerce post types and their settings keys.
@@ -28,7 +28,7 @@ class RPA_WooCommerce_Integration {
 
 	public function __construct() {
 		// Only initialize if WooCommerce is active
-		if ( ! RPA_Settings::is_woocommerce_active() ) {
+		if ( ! SFAccess_Settings::is_woocommerce_active() ) {
 			return;
 		}
 
@@ -57,12 +57,12 @@ class RPA_WooCommerce_Integration {
 			return false;
 		}
 
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return false;
 		}
 
 		$user_id = get_current_user_id();
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			return true;
 		}
 
@@ -80,7 +80,7 @@ class RPA_WooCommerce_Integration {
 			return false;
 		}
 
-		return RPA_Settings::get( $this->wc_types[ $post_type ], false );
+		return SFAccess_Settings::get( $this->wc_types[ $post_type ], false );
 	}
 
 	/**
@@ -91,7 +91,7 @@ class RPA_WooCommerce_Integration {
 	 */
 	private function get_allowed_wc_ids( $post_type ) {
 		$user_id = get_current_user_id();
-		return RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+		return SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 	}
 
 	/**
@@ -128,7 +128,7 @@ class RPA_WooCommerce_Integration {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$query->set( 'post__in', array( 0 ) );
 			return;
 		}
@@ -173,7 +173,7 @@ class RPA_WooCommerce_Integration {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			wp_die(
 				esc_html__( 'Your access has expired.', 'secure-freelancer-access' ),
 				esc_html__( 'Access Expired', 'secure-freelancer-access' ),
@@ -221,7 +221,7 @@ class RPA_WooCommerce_Integration {
 
 		$user_id = get_current_user_id();
 
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$args['include'] = array( 0 );
 			return $args;
 		}
@@ -254,7 +254,7 @@ class RPA_WooCommerce_Integration {
 
 		$user_id = get_current_user_id();
 
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$args['include'] = array( 0 );
 			return $args;
 		}
@@ -300,7 +300,7 @@ class RPA_WooCommerce_Integration {
 		}
 
 		// Save to DB
-		$logs = get_option( 'rpa_access_logs', array() );
+		$logs = get_option( 'sfaccess_access_logs', array() );
 		if ( ! is_array( $logs ) ) {
 			$logs = array();
 		}
@@ -319,6 +319,6 @@ class RPA_WooCommerce_Integration {
 			$logs = array_slice( $logs, 0, 50 );
 		}
 
-		update_option( 'rpa_access_logs', $logs, false );
+		update_option( 'sfaccess_access_logs', $logs, false );
 	}
 }

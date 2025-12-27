@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Post_Access
+ * Class SFAccess_Post_Access
  * Checks access rights when attempting to open the post editor.
  */
-class RPA_Post_Access {
+class SFAccess_Post_Access {
 
 	public function __construct() {
 		// Хук срабатывает при загрузке страницы редактирования поста
@@ -27,7 +27,7 @@ class RPA_Post_Access {
 		}
 
 		// Check if user's role is in restricted list
-		return RPA_Settings::is_current_user_restricted();
+		return SFAccess_Settings::is_current_user_restricted();
 	}
 
 	/**
@@ -53,7 +53,7 @@ class RPA_Post_Access {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired (temporary access)
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$this->log_access_attempt( $user_id, $post_id );
 			wp_die(
 				esc_html__( 'Your access has expired.', 'secure-freelancer-access' ),
@@ -63,7 +63,7 @@ class RPA_Post_Access {
 		}
 
 		// Check if this post type is enabled for restriction
-		if ( ! RPA_Settings::is_post_type_enabled( $post->post_type ) ) {
+		if ( ! SFAccess_Settings::is_post_type_enabled( $post->post_type ) ) {
 			return; // This post type is not restricted
 		}
 
@@ -90,13 +90,13 @@ class RPA_Post_Access {
 	 */
 	private function check_user_access( $user_id, $post_id, $post_type ) {
 		// Check direct access to post
-		$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+		$allowed_ids = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 		if ( in_array( $post_id, $allowed_ids, true ) ) {
 			return true;
 		}
 
 		// Check access via taxonomies
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 
 		foreach ( $enabled_taxonomies as $taxonomy ) {
 			// Check if taxonomy applies to this post type
@@ -106,7 +106,7 @@ class RPA_Post_Access {
 			}
 
 			// Get allowed terms for this taxonomy
-			$allowed_terms = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+			$allowed_terms = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
 			if ( empty( $allowed_terms ) ) {
 				continue;
 			}
@@ -154,7 +154,7 @@ class RPA_Post_Access {
 		}
 
 		// Сохраняем в БД для вывода в админке
-		$logs = get_option( 'rpa_access_logs', array() );
+		$logs = get_option( 'sfaccess_access_logs', array() );
 		if ( ! is_array( $logs ) ) {
 			$logs = array();
 		}
@@ -175,6 +175,6 @@ class RPA_Post_Access {
 			$logs = array_slice( $logs, 0, 50 );
 		}
 
-		update_option( 'rpa_access_logs', $logs, false );
+		update_option( 'sfaccess_access_logs', $logs, false );
 	}
 }

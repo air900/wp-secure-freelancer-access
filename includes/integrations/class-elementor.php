@@ -5,14 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Elementor_Integration
+ * Class SFAccess_Elementor_Integration
  * Handles Elementor content access restrictions.
  *
  * Supports:
  * - Elementor Templates (elementor_library)
  * - Elementor Theme Builder parts (elementor-hf, elementor-thhf)
  */
-class RPA_Elementor_Integration {
+class SFAccess_Elementor_Integration {
 
 	/**
 	 * Elementor post types and their settings keys.
@@ -27,7 +27,7 @@ class RPA_Elementor_Integration {
 
 	public function __construct() {
 		// Only initialize if Elementor is active
-		if ( ! RPA_Settings::is_elementor_active() ) {
+		if ( ! SFAccess_Settings::is_elementor_active() ) {
 			return;
 		}
 
@@ -54,12 +54,12 @@ class RPA_Elementor_Integration {
 			return false;
 		}
 
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return false;
 		}
 
 		$user_id = get_current_user_id();
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			return true;
 		}
 
@@ -77,7 +77,7 @@ class RPA_Elementor_Integration {
 			return false;
 		}
 
-		return RPA_Settings::get( $this->elementor_types[ $post_type ], false );
+		return SFAccess_Settings::get( $this->elementor_types[ $post_type ], false );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class RPA_Elementor_Integration {
 	 */
 	private function get_allowed_elementor_ids( $post_type ) {
 		$user_id = get_current_user_id();
-		return RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+		return SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class RPA_Elementor_Integration {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$query->set( 'post__in', array( 0 ) );
 			return;
 		}
@@ -170,7 +170,7 @@ class RPA_Elementor_Integration {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			wp_die(
 				esc_html__( 'Your access has expired.', 'secure-freelancer-access' ),
 				esc_html__( 'Access Expired', 'secure-freelancer-access' ),
@@ -206,7 +206,7 @@ class RPA_Elementor_Integration {
 		if ( isset( $categories['templates'] ) && isset( $categories['templates']['items'] ) ) {
 			$user_id = get_current_user_id();
 
-			if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+			if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 				$categories['templates']['items'] = array();
 				return $categories;
 			}
@@ -256,7 +256,7 @@ class RPA_Elementor_Integration {
 
 		$user_id = get_current_user_id();
 
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			return new WP_Error( 'access_denied', __( 'Your access has expired.', 'secure-freelancer-access' ) );
 		}
 
@@ -299,7 +299,7 @@ class RPA_Elementor_Integration {
 		}
 
 		// Save to DB
-		$logs = get_option( 'rpa_access_logs', array() );
+		$logs = get_option( 'sfaccess_access_logs', array() );
 		if ( ! is_array( $logs ) ) {
 			$logs = array();
 		}
@@ -318,6 +318,6 @@ class RPA_Elementor_Integration {
 			$logs = array_slice( $logs, 0, 50 );
 		}
 
-		update_option( 'rpa_access_logs', $logs, false );
+		update_option( 'sfaccess_access_logs', $logs, false );
 	}
 }

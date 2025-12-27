@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_User_Meta_Handler
+ * Class SFAccess_User_Meta_Handler
  * Отвечает за работу с метаданными пользователей (хранение прав доступа).
  */
-class RPA_User_Meta_Handler {
+class SFAccess_User_Meta_Handler {
 
-	const META_KEY_PAGES = 'rpa_allowed_pages';
-	const META_KEY_POSTS = 'rpa_allowed_posts';
+	const META_KEY_PAGES = 'sfaccess_allowed_pages';
+	const META_KEY_POSTS = 'sfaccess_allowed_posts';
 
 	/**
 	 * Получить массив разрешенных страниц для пользователя.
@@ -77,7 +77,7 @@ class RPA_User_Meta_Handler {
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
 				$user_id,
-				'rpa_allowed_%'
+				'sfaccess_allowed_%'
 			)
 		);
 	}
@@ -99,7 +99,7 @@ class RPA_User_Meta_Handler {
 		}
 
 		// Generic method for custom post types
-		$meta_key = 'rpa_allowed_' . sanitize_key( $post_type );
+		$meta_key = 'sfaccess_allowed_' . sanitize_key( $post_type );
 		$allowed = get_user_meta( $user_id, $meta_key, true );
 		return is_array( $allowed ) ? array_map( 'intval', $allowed ) : array();
 	}
@@ -122,7 +122,7 @@ class RPA_User_Meta_Handler {
 		}
 
 		// Generic method for custom post types
-		$meta_key = 'rpa_allowed_' . sanitize_key( $post_type );
+		$meta_key = 'sfaccess_allowed_' . sanitize_key( $post_type );
 		$ids = array_map( 'intval', $ids );
 		$ids = array_filter( $ids );
 		return update_user_meta( $user_id, $meta_key, $ids );
@@ -136,7 +136,7 @@ class RPA_User_Meta_Handler {
 	 * @return array Array of term IDs.
 	 */
 	public static function get_user_allowed_taxonomy_terms( $user_id, $taxonomy ) {
-		$meta_key = 'rpa_allowed_tax_' . sanitize_key( $taxonomy );
+		$meta_key = 'sfaccess_allowed_tax_' . sanitize_key( $taxonomy );
 		$allowed = get_user_meta( $user_id, $meta_key, true );
 		return is_array( $allowed ) ? array_map( 'intval', $allowed ) : array();
 	}
@@ -150,7 +150,7 @@ class RPA_User_Meta_Handler {
 	 * @return int|bool
 	 */
 	public static function set_user_allowed_taxonomy_terms( $user_id, $taxonomy, $term_ids ) {
-		$meta_key = 'rpa_allowed_tax_' . sanitize_key( $taxonomy );
+		$meta_key = 'sfaccess_allowed_tax_' . sanitize_key( $taxonomy );
 		$term_ids = array_map( 'intval', $term_ids );
 		$term_ids = array_filter( $term_ids );
 		return update_user_meta( $user_id, $meta_key, $term_ids );
@@ -163,7 +163,7 @@ class RPA_User_Meta_Handler {
 	 * @return array Array of attachment IDs.
 	 */
 	public static function get_user_allowed_media( $user_id ) {
-		$allowed = get_user_meta( $user_id, 'rpa_allowed_media', true );
+		$allowed = get_user_meta( $user_id, 'sfaccess_allowed_media', true );
 		return is_array( $allowed ) ? array_map( 'intval', $allowed ) : array();
 	}
 
@@ -177,7 +177,7 @@ class RPA_User_Meta_Handler {
 	public static function set_user_allowed_media( $user_id, $ids ) {
 		$ids = array_map( 'intval', $ids );
 		$ids = array_filter( $ids );
-		return update_user_meta( $user_id, 'rpa_allowed_media', $ids );
+		return update_user_meta( $user_id, 'sfaccess_allowed_media', $ids );
 	}
 
 	/**
@@ -187,7 +187,7 @@ class RPA_User_Meta_Handler {
 	 * @return array|null Array with start_date, end_date, or null if no schedule.
 	 */
 	public static function get_user_access_schedule( $user_id ) {
-		$schedule = get_user_meta( $user_id, 'rpa_access_schedule', true );
+		$schedule = get_user_meta( $user_id, 'sfaccess_access_schedule', true );
 		if ( ! is_array( $schedule ) || empty( $schedule ) ) {
 			return null;
 		}
@@ -204,7 +204,7 @@ class RPA_User_Meta_Handler {
 	 */
 	public static function set_user_access_schedule( $user_id, $start_date = null, $end_date = null ) {
 		if ( null === $start_date && null === $end_date ) {
-			return delete_user_meta( $user_id, 'rpa_access_schedule' );
+			return delete_user_meta( $user_id, 'sfaccess_access_schedule' );
 		}
 
 		$schedule = array(
@@ -212,7 +212,7 @@ class RPA_User_Meta_Handler {
 			'end_date'   => $end_date ? sanitize_text_field( $end_date ) : null,
 		);
 
-		return update_user_meta( $user_id, 'rpa_access_schedule', $schedule );
+		return update_user_meta( $user_id, 'sfaccess_access_schedule', $schedule );
 	}
 
 	/**
@@ -222,7 +222,7 @@ class RPA_User_Meta_Handler {
 	 * @return bool True on success, false on failure.
 	 */
 	public static function clear_user_access_schedule( $user_id ) {
-		return delete_user_meta( $user_id, 'rpa_access_schedule' );
+		return delete_user_meta( $user_id, 'sfaccess_access_schedule' );
 	}
 
 	/**
@@ -276,7 +276,7 @@ class RPA_User_Meta_Handler {
 		self::set_user_allowed_media( $target_user_id, $media );
 
 		// Copy custom post types
-		$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+		$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 		foreach ( $enabled_types as $post_type ) {
 			if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 				continue;
@@ -286,7 +286,7 @@ class RPA_User_Meta_Handler {
 		}
 
 		// Copy taxonomies
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 		foreach ( $enabled_taxonomies as $taxonomy ) {
 			$terms = self::get_user_allowed_taxonomy_terms( $source_user_id, $taxonomy );
 			self::set_user_allowed_taxonomy_terms( $target_user_id, $taxonomy, $terms );

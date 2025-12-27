@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Media_Access
+ * Class SFAccess_Media_Access
  * Handles media library access restrictions.
  *
  * Allowed media for restricted users:
@@ -13,11 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * 2. Media attached to allowed pages/posts
  * 3. Media explicitly assigned by admin
  */
-class RPA_Media_Access {
+class SFAccess_Media_Access {
 
 	public function __construct() {
 		// Only run if media restriction is enabled
-		if ( ! RPA_Settings::get( 'media_restriction', true ) ) {
+		if ( ! SFAccess_Settings::get( 'media_restriction', true ) ) {
 			return;
 		}
 
@@ -43,13 +43,13 @@ class RPA_Media_Access {
 		}
 
 		// Check if user's role is in restricted list
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return false;
 		}
 
 		// Check temporary access schedule
 		$user_id = get_current_user_id();
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			return true; // Access expired - filter everything
 		}
 
@@ -76,10 +76,10 @@ class RPA_Media_Access {
 		$allowed_ids = array_merge( $allowed_ids, $own_uploads );
 
 		// 2. Get media attached to allowed pages/posts
-		$enabled_post_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+		$enabled_post_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 
 		foreach ( $enabled_post_types as $post_type ) {
-			$allowed_content = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+			$allowed_content = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 
 			if ( ! empty( $allowed_content ) ) {
 				// Get attachments attached to these posts
@@ -109,7 +109,7 @@ class RPA_Media_Access {
 		}
 
 		// 3. Get explicitly assigned media
-		$assigned_media = RPA_User_Meta_Handler::get_user_allowed_media( $user_id );
+		$assigned_media = SFAccess_User_Meta_Handler::get_user_allowed_media( $user_id );
 		$allowed_ids = array_merge( $allowed_ids, $assigned_media );
 
 		// Remove duplicates and ensure integers
@@ -177,7 +177,7 @@ class RPA_Media_Access {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$query['post__in'] = array( 0 );
 			return $query;
 		}
@@ -216,7 +216,7 @@ class RPA_Media_Access {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$query->set( 'post__in', array( 0 ) );
 			return;
 		}
@@ -245,7 +245,7 @@ class RPA_Media_Access {
 		$user_id = get_current_user_id();
 
 		// Check if access is expired
-		if ( ! RPA_User_Meta_Handler::is_user_access_active( $user_id ) ) {
+		if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user_id ) ) {
 			$args['post__in'] = array( 0 );
 			return $args;
 		}

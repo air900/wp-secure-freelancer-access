@@ -10,10 +10,10 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 }
 
 /**
- * Class RPA_WPCLI
+ * Class SFAccess_WPCLI
  * Provides WP-CLI commands for managing content access restrictions.
  */
-class RPA_WPCLI {
+class SFAccess_WPCLI {
 
 	/**
 	 * List all restricted users with their access summary.
@@ -32,13 +32,13 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa list-users
-	 *     wp rpa list-users --format=json
+	 *     wp sfaccess list-users
+	 *     wp sfaccess list-users --format=json
 	 *
 	 * @subcommand list-users
 	 */
 	public function list_users( $args, $assoc_args ) {
-		$restricted_roles = RPA_Settings::get( 'restricted_roles', array( 'editor' ) );
+		$restricted_roles = SFAccess_Settings::get( 'restricted_roles', array( 'editor' ) );
 		$users = get_users( array( 'role__in' => $restricted_roles ) );
 
 		if ( empty( $users ) ) {
@@ -48,14 +48,14 @@ class RPA_WPCLI {
 
 		$data = array();
 		foreach ( $users as $user ) {
-			$pages = RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID );
-			$posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID );
-			$media = RPA_User_Meta_Handler::get_user_allowed_media( $user->ID );
-			$schedule = RPA_User_Meta_Handler::get_user_access_schedule( $user->ID );
+			$pages = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user->ID );
+			$posts = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user->ID );
+			$media = SFAccess_User_Meta_Handler::get_user_allowed_media( $user->ID );
+			$schedule = SFAccess_User_Meta_Handler::get_user_access_schedule( $user->ID );
 
 			$status = 'Active';
 			if ( ! empty( $schedule['start_date'] ) || ! empty( $schedule['end_date'] ) ) {
-				if ( ! RPA_User_Meta_Handler::is_user_access_active( $user->ID ) ) {
+				if ( ! SFAccess_User_Meta_Handler::is_user_access_active( $user->ID ) ) {
 					$status = 'Expired/Inactive';
 				} else {
 					$status = 'Scheduled';
@@ -97,8 +97,8 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa user-access 5
-	 *     wp rpa user-access editor_user --format=json
+	 *     wp sfaccess user-access 5
+	 *     wp sfaccess user-access editor_user --format=json
 	 *
 	 * @subcommand user-access
 	 */
@@ -108,10 +108,10 @@ class RPA_WPCLI {
 			WP_CLI::error( 'User not found.' );
 		}
 
-		$pages = RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID );
-		$posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID );
-		$media = RPA_User_Meta_Handler::get_user_allowed_media( $user->ID );
-		$schedule = RPA_User_Meta_Handler::get_user_access_schedule( $user->ID );
+		$pages = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user->ID );
+		$posts = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user->ID );
+		$media = SFAccess_User_Meta_Handler::get_user_allowed_media( $user->ID );
+		$schedule = SFAccess_User_Meta_Handler::get_user_access_schedule( $user->ID );
 
 		$format = isset( $assoc_args['format'] ) ? $assoc_args['format'] : 'table';
 
@@ -126,12 +126,12 @@ class RPA_WPCLI {
 			);
 
 			// Add CPT access
-			$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+			$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 			foreach ( $enabled_types as $post_type ) {
 				if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 					continue;
 				}
-				$data[ $post_type ] = RPA_User_Meta_Handler::get_user_allowed_content( $user->ID, $post_type );
+				$data[ $post_type ] = SFAccess_User_Meta_Handler::get_user_allowed_content( $user->ID, $post_type );
 			}
 
 			WP_CLI::line( json_encode( $data, JSON_PRETTY_PRINT ) );
@@ -144,7 +144,7 @@ class RPA_WPCLI {
 
 		// Schedule
 		if ( ! empty( $schedule['start_date'] ) || ! empty( $schedule['end_date'] ) ) {
-			$is_active = RPA_User_Meta_Handler::is_user_access_active( $user->ID );
+			$is_active = SFAccess_User_Meta_Handler::is_user_access_active( $user->ID );
 			$status_color = $is_active ? '%G' : '%R';
 			$status_text = $is_active ? 'ACTIVE' : 'INACTIVE';
 			WP_CLI::line( WP_CLI::colorize( "Schedule: {$status_color}{$status_text}%n" ) );
@@ -209,9 +209,9 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa grant editor_user page 10,20,30
-	 *     wp rpa grant 5 post 100
-	 *     wp rpa grant editor_user media 50,51,52
+	 *     wp sfaccess grant editor_user page 10,20,30
+	 *     wp sfaccess grant 5 post 100
+	 *     wp sfaccess grant editor_user media 50,51,52
 	 *
 	 */
 	public function grant( $args, $assoc_args ) {
@@ -230,30 +230,30 @@ class RPA_WPCLI {
 
 		switch ( $type ) {
 			case 'page':
-				$existing = RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user->ID );
 				$new = array_unique( array_merge( $existing, $ids ) );
-				RPA_User_Meta_Handler::set_user_allowed_pages( $user->ID, $new );
+				SFAccess_User_Meta_Handler::set_user_allowed_pages( $user->ID, $new );
 				break;
 
 			case 'post':
-				$existing = RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user->ID );
 				$new = array_unique( array_merge( $existing, $ids ) );
-				RPA_User_Meta_Handler::set_user_allowed_posts( $user->ID, $new );
+				SFAccess_User_Meta_Handler::set_user_allowed_posts( $user->ID, $new );
 				break;
 
 			case 'media':
-				$existing = RPA_User_Meta_Handler::get_user_allowed_media( $user->ID );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_media( $user->ID );
 				$new = array_unique( array_merge( $existing, $ids ) );
-				RPA_User_Meta_Handler::set_user_allowed_media( $user->ID, $new );
+				SFAccess_User_Meta_Handler::set_user_allowed_media( $user->ID, $new );
 				break;
 
 			default:
 				// Check if it's a custom post type
-				$enabled_types = RPA_Settings::get( 'enabled_post_types', array() );
+				$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array() );
 				if ( in_array( $type, $enabled_types, true ) ) {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_content( $user->ID, $type );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_content( $user->ID, $type );
 					$new = array_unique( array_merge( $existing, $ids ) );
-					RPA_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, $new );
+					SFAccess_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, $new );
 				} else {
 					WP_CLI::error( "Unknown content type: {$type}" );
 				}
@@ -280,8 +280,8 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa revoke editor_user page 10,20
-	 *     wp rpa revoke 5 post all
+	 *     wp sfaccess revoke editor_user page 10,20
+	 *     wp sfaccess revoke 5 post all
 	 *
 	 */
 	public function revoke( $args, $assoc_args ) {
@@ -303,43 +303,43 @@ class RPA_WPCLI {
 		switch ( $type ) {
 			case 'page':
 				if ( 'all' === $ids ) {
-					RPA_User_Meta_Handler::set_user_allowed_pages( $user->ID, array() );
+					SFAccess_User_Meta_Handler::set_user_allowed_pages( $user->ID, array() );
 				} else {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user->ID );
 					$new = array_diff( $existing, $ids );
-					RPA_User_Meta_Handler::set_user_allowed_pages( $user->ID, $new );
+					SFAccess_User_Meta_Handler::set_user_allowed_pages( $user->ID, $new );
 				}
 				break;
 
 			case 'post':
 				if ( 'all' === $ids ) {
-					RPA_User_Meta_Handler::set_user_allowed_posts( $user->ID, array() );
+					SFAccess_User_Meta_Handler::set_user_allowed_posts( $user->ID, array() );
 				} else {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user->ID );
 					$new = array_diff( $existing, $ids );
-					RPA_User_Meta_Handler::set_user_allowed_posts( $user->ID, $new );
+					SFAccess_User_Meta_Handler::set_user_allowed_posts( $user->ID, $new );
 				}
 				break;
 
 			case 'media':
 				if ( 'all' === $ids ) {
-					RPA_User_Meta_Handler::set_user_allowed_media( $user->ID, array() );
+					SFAccess_User_Meta_Handler::set_user_allowed_media( $user->ID, array() );
 				} else {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_media( $user->ID );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_media( $user->ID );
 					$new = array_diff( $existing, $ids );
-					RPA_User_Meta_Handler::set_user_allowed_media( $user->ID, $new );
+					SFAccess_User_Meta_Handler::set_user_allowed_media( $user->ID, $new );
 				}
 				break;
 
 			default:
-				$enabled_types = RPA_Settings::get( 'enabled_post_types', array() );
+				$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array() );
 				if ( in_array( $type, $enabled_types, true ) ) {
 					if ( 'all' === $ids ) {
-						RPA_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, array() );
+						SFAccess_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, array() );
 					} else {
-						$existing = RPA_User_Meta_Handler::get_user_allowed_content( $user->ID, $type );
+						$existing = SFAccess_User_Meta_Handler::get_user_allowed_content( $user->ID, $type );
 						$new = array_diff( $existing, $ids );
-						RPA_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, $new );
+						SFAccess_User_Meta_Handler::set_user_allowed_content( $user->ID, $type, $new );
 					}
 				} else {
 					WP_CLI::error( "Unknown content type: {$type}" );
@@ -371,8 +371,8 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa apply-template editor_user tpl_abc123
-	 *     wp rpa apply-template 5 tpl_abc123 --merge
+	 *     wp sfaccess apply-template editor_user tpl_abc123
+	 *     wp sfaccess apply-template 5 tpl_abc123 --merge
 	 *
 	 * @subcommand apply-template
 	 */
@@ -383,14 +383,14 @@ class RPA_WPCLI {
 		}
 
 		$template_id = $args[1];
-		$template = RPA_Access_Templates::get_template( $template_id );
+		$template = SFAccess_Access_Templates::get_template( $template_id );
 
 		if ( ! $template ) {
 			WP_CLI::error( "Template not found: {$template_id}" );
 		}
 
 		$merge = isset( $assoc_args['merge'] );
-		$result = RPA_Access_Templates::apply_to_user( $template_id, $user->ID, $merge );
+		$result = SFAccess_Access_Templates::apply_to_user( $template_id, $user->ID, $merge );
 
 		if ( $result ) {
 			$mode = $merge ? 'merged' : 'applied';
@@ -416,13 +416,13 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa list-templates
-	 *     wp rpa list-templates --format=json
+	 *     wp sfaccess list-templates
+	 *     wp sfaccess list-templates --format=json
 	 *
 	 * @subcommand list-templates
 	 */
 	public function list_templates( $args, $assoc_args ) {
-		$templates = RPA_Access_Templates::get_templates();
+		$templates = SFAccess_Access_Templates::get_templates();
 
 		if ( empty( $templates ) ) {
 			WP_CLI::success( 'No templates found.' );
@@ -431,7 +431,7 @@ class RPA_WPCLI {
 
 		$data = array();
 		foreach ( $templates as $template_id => $template ) {
-			$summary = RPA_Access_Templates::get_template_summary( $template_id );
+			$summary = SFAccess_Access_Templates::get_template_summary( $template_id );
 			$summary_text = array();
 			foreach ( $summary as $label => $count ) {
 				$summary_text[] = "{$label}: {$count}";
@@ -460,12 +460,12 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa export > backup.json
-	 *     wp rpa export /path/to/backup.json
+	 *     wp sfaccess export > backup.json
+	 *     wp sfaccess export /path/to/backup.json
 	 *
 	 */
 	public function export( $args, $assoc_args ) {
-		$export_import = new RPA_Export_Import();
+		$export_import = new SFAccess_Export_Import();
 		$data = $export_import->generate_export_data();
 		$json = json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 
@@ -494,8 +494,8 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa import backup.json
-	 *     wp rpa import backup.json --yes
+	 *     wp sfaccess import backup.json
+	 *     wp sfaccess import backup.json --yes
 	 *
 	 */
 	public function import( $args, $assoc_args ) {
@@ -526,7 +526,7 @@ class RPA_WPCLI {
 
 		WP_CLI::confirm( 'Do you want to import this data?', $assoc_args );
 
-		$export_import = new RPA_Export_Import();
+		$export_import = new SFAccess_Export_Import();
 		$result = $export_import->import_data( $data );
 
 		if ( $result ) {
@@ -555,9 +555,9 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa schedule editor_user --start=2025-01-01 --end=2025-12-31
-	 *     wp rpa schedule 5 --end=2025-06-30
-	 *     wp rpa schedule editor_user --clear
+	 *     wp sfaccess schedule editor_user --start=2025-01-01 --end=2025-12-31
+	 *     wp sfaccess schedule 5 --end=2025-06-30
+	 *     wp sfaccess schedule editor_user --clear
 	 *
 	 */
 	public function schedule( $args, $assoc_args ) {
@@ -567,7 +567,7 @@ class RPA_WPCLI {
 		}
 
 		if ( isset( $assoc_args['clear'] ) ) {
-			RPA_User_Meta_Handler::clear_user_access_schedule( $user->ID );
+			SFAccess_User_Meta_Handler::clear_user_access_schedule( $user->ID );
 			WP_CLI::success( "Schedule cleared for user {$user->user_login}." );
 			return;
 		}
@@ -577,7 +577,7 @@ class RPA_WPCLI {
 
 		if ( empty( $start ) && empty( $end ) ) {
 			// Show current schedule
-			$schedule = RPA_User_Meta_Handler::get_user_access_schedule( $user->ID );
+			$schedule = SFAccess_User_Meta_Handler::get_user_access_schedule( $user->ID );
 			if ( empty( $schedule['start_date'] ) && empty( $schedule['end_date'] ) ) {
 				WP_CLI::line( "No schedule set for user {$user->user_login}." );
 			} else {
@@ -585,14 +585,14 @@ class RPA_WPCLI {
 				WP_CLI::line( "  Start: " . ( $schedule['start_date'] ?: '(not set)' ) );
 				WP_CLI::line( "  End: " . ( $schedule['end_date'] ?: '(not set)' ) );
 
-				$is_active = RPA_User_Meta_Handler::is_user_access_active( $user->ID );
+				$is_active = SFAccess_User_Meta_Handler::is_user_access_active( $user->ID );
 				$status = $is_active ? 'ACTIVE' : 'INACTIVE';
 				WP_CLI::line( "  Status: {$status}" );
 			}
 			return;
 		}
 
-		RPA_User_Meta_Handler::set_user_access_schedule( $user->ID, $start, $end );
+		SFAccess_User_Meta_Handler::set_user_access_schedule( $user->ID, $start, $end );
 		WP_CLI::success( "Schedule set for user {$user->user_login}." );
 
 		if ( ! empty( $start ) ) {
@@ -619,8 +619,8 @@ class RPA_WPCLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp rpa copy-access editor1 editor2
-	 *     wp rpa copy-access 5 10 --include-schedule
+	 *     wp sfaccess copy-access editor1 editor2
+	 *     wp sfaccess copy-access 5 10 --include-schedule
 	 *
 	 * @subcommand copy-access
 	 */
@@ -640,7 +640,7 @@ class RPA_WPCLI {
 		}
 
 		$include_schedule = isset( $assoc_args['include-schedule'] );
-		RPA_User_Meta_Handler::copy_user_access( $source->ID, $target->ID, $include_schedule );
+		SFAccess_User_Meta_Handler::copy_user_access( $source->ID, $target->ID, $include_schedule );
 
 		WP_CLI::success( "Access copied from {$source->user_login} to {$target->user_login}." );
 	}
@@ -660,4 +660,4 @@ class RPA_WPCLI {
 }
 
 // Register WP-CLI commands
-WP_CLI::add_command( 'rpa', 'RPA_WPCLI' );
+WP_CLI::add_command( 'sfaccess', 'SFAccess_WPCLI' );

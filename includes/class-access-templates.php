@@ -5,14 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Access_Templates
+ * Class SFAccess_Access_Templates
  * Handles access templates for quick permission assignment.
  *
  * Templates are stored in wp_options and can be applied to users manually.
  */
-class RPA_Access_Templates {
+class SFAccess_Access_Templates {
 
-	const OPTION_NAME = 'rpa_templates';
+	const OPTION_NAME = 'sfaccess_templates';
 
 	/**
 	 * Get all templates.
@@ -100,56 +100,56 @@ class RPA_Access_Templates {
 		// Apply pages
 		if ( isset( $content['page'] ) ) {
 			if ( $merge ) {
-				$existing = RPA_User_Meta_Handler::get_user_allowed_pages( $user_id );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user_id );
 				$content['page'] = array_unique( array_merge( $existing, $content['page'] ) );
 			}
-			RPA_User_Meta_Handler::set_user_allowed_pages( $user_id, $content['page'] );
+			SFAccess_User_Meta_Handler::set_user_allowed_pages( $user_id, $content['page'] );
 		}
 
 		// Apply posts
 		if ( isset( $content['post'] ) ) {
 			if ( $merge ) {
-				$existing = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user_id );
 				$content['post'] = array_unique( array_merge( $existing, $content['post'] ) );
 			}
-			RPA_User_Meta_Handler::set_user_allowed_posts( $user_id, $content['post'] );
+			SFAccess_User_Meta_Handler::set_user_allowed_posts( $user_id, $content['post'] );
 		}
 
 		// Apply custom post types
-		$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+		$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 		foreach ( $enabled_types as $post_type ) {
 			if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 				continue; // Already handled above
 			}
 			if ( isset( $content[ $post_type ] ) ) {
 				if ( $merge ) {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 					$content[ $post_type ] = array_unique( array_merge( $existing, $content[ $post_type ] ) );
 				}
-				RPA_User_Meta_Handler::set_user_allowed_content( $user_id, $post_type, $content[ $post_type ] );
+				SFAccess_User_Meta_Handler::set_user_allowed_content( $user_id, $post_type, $content[ $post_type ] );
 			}
 		}
 
 		// Apply taxonomies
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 		foreach ( $enabled_taxonomies as $taxonomy ) {
 			$key = 'tax_' . $taxonomy;
 			if ( isset( $content[ $key ] ) ) {
 				if ( $merge ) {
-					$existing = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+					$existing = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
 					$content[ $key ] = array_unique( array_merge( $existing, $content[ $key ] ) );
 				}
-				RPA_User_Meta_Handler::set_user_allowed_taxonomy_terms( $user_id, $taxonomy, $content[ $key ] );
+				SFAccess_User_Meta_Handler::set_user_allowed_taxonomy_terms( $user_id, $taxonomy, $content[ $key ] );
 			}
 		}
 
 		// Apply media
 		if ( isset( $content['media'] ) ) {
 			if ( $merge ) {
-				$existing = RPA_User_Meta_Handler::get_user_allowed_media( $user_id );
+				$existing = SFAccess_User_Meta_Handler::get_user_allowed_media( $user_id );
 				$content['media'] = array_unique( array_merge( $existing, $content['media'] ) );
 			}
-			RPA_User_Meta_Handler::set_user_allowed_media( $user_id, $content['media'] );
+			SFAccess_User_Meta_Handler::set_user_allowed_media( $user_id, $content['media'] );
 		}
 
 		return true;
@@ -167,40 +167,40 @@ class RPA_Access_Templates {
 		$content = array();
 
 		// Get pages
-		$pages = RPA_User_Meta_Handler::get_user_allowed_pages( $user_id );
+		$pages = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user_id );
 		if ( ! empty( $pages ) ) {
 			$content['page'] = $pages;
 		}
 
 		// Get posts
-		$posts = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
+		$posts = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user_id );
 		if ( ! empty( $posts ) ) {
 			$content['post'] = $posts;
 		}
 
 		// Get custom post types
-		$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+		$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 		foreach ( $enabled_types as $post_type ) {
 			if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 				continue;
 			}
-			$cpt_content = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+			$cpt_content = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 			if ( ! empty( $cpt_content ) ) {
 				$content[ $post_type ] = $cpt_content;
 			}
 		}
 
 		// Get taxonomies
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 		foreach ( $enabled_taxonomies as $taxonomy ) {
-			$terms = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+			$terms = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
 			if ( ! empty( $terms ) ) {
 				$content[ 'tax_' . $taxonomy ] = $terms;
 			}
 		}
 
 		// Get media
-		$media = RPA_User_Meta_Handler::get_user_allowed_media( $user_id );
+		$media = SFAccess_User_Meta_Handler::get_user_allowed_media( $user_id );
 		if ( ! empty( $media ) ) {
 			$content['media'] = $media;
 		}

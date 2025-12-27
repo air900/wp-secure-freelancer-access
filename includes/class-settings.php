@@ -1,6 +1,6 @@
 <?php
 /**
- * Class RPA_Settings
+ * Class SFAccess_Settings
  * Handles plugin settings - roles, content types, and general options.
  */
 
@@ -8,12 +8,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class RPA_Settings {
+class SFAccess_Settings {
 
 	/**
 	 * Option name for storing settings.
 	 */
-	const OPTION_NAME = 'rpa_settings';
+	const OPTION_NAME = 'sfaccess_settings';
 
 	/**
 	 * Default settings.

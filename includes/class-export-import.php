@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class RPA_Export_Import
+ * Class SFAccess_Export_Import
  * Handles export and import of plugin data.
  */
-class RPA_Export_Import {
+class SFAccess_Export_Import {
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'handle_export' ) );
@@ -19,15 +19,15 @@ class RPA_Export_Import {
 	 * Handle export request.
 	 */
 	public function handle_export() {
-		if ( ! isset( $_GET['rpa_export'] ) || ! current_user_can( 'manage_options' ) ) {
+		if ( ! isset( $_GET['sfaccess_export'] ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		check_admin_referer( 'rpa_export', 'rpa_export_nonce' );
+		check_admin_referer( 'sfaccess_export', 'sfaccess_export_nonce' );
 
 		$export_data = $this->generate_export_data();
 
-		$filename = 'rpa-export-' . gmdate( 'Y-m-d-His' ) . '.json';
+		$filename = 'sfaccess-export-' . gmdate( 'Y-m-d-His' ) . '.json';
 
 		header( 'Content-Type: application/json' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
@@ -42,7 +42,7 @@ class RPA_Export_Import {
 	 * Handle import request.
 	 */
 	public function handle_import() {
-		if ( ! isset( $_POST['rpa_action'] ) || 'import_data' !== $_POST['rpa_action'] ) {
+		if ( ! isset( $_POST['sfaccess_action'] ) || 'import_data' !== $_POST['sfaccess_action'] ) {
 			return;
 		}
 
@@ -50,7 +50,7 @@ class RPA_Export_Import {
 			return;
 		}
 
-		check_admin_referer( 'rpa_import', 'rpa_nonce' );
+		check_admin_referer( 'sfaccess_import', 'sfaccess_nonce' );
 
 		// Validate file upload
 		if ( ! isset( $_FILES['import_file'] ) ||
@@ -96,41 +96,41 @@ class RPA_Export_Import {
 	 */
 	public function generate_export_data() {
 		$data = array(
-			'version'     => RPA_VERSION,
+			'version'     => SFAccess_VERSION,
 			'exported_at' => current_time( 'c' ),
 			'site_url'    => get_site_url(),
-			'settings'    => RPA_Settings::get_settings(),
-			'templates'   => RPA_Access_Templates::get_templates(),
+			'settings'    => SFAccess_Settings::get_settings(),
+			'templates'   => SFAccess_Access_Templates::get_templates(),
 			'user_access' => array(),
 		);
 
 		// Get all restricted users
-		$restricted_roles = RPA_Settings::get( 'restricted_roles', array( 'editor' ) );
+		$restricted_roles = SFAccess_Settings::get( 'restricted_roles', array( 'editor' ) );
 		$users = get_users( array( 'role__in' => $restricted_roles ) );
 
 		foreach ( $users as $user ) {
 			$user_data = array(
 				'user_login' => $user->user_login,
 				'user_email' => $user->user_email,
-				'pages'      => RPA_User_Meta_Handler::get_user_allowed_pages( $user->ID ),
-				'posts'      => RPA_User_Meta_Handler::get_user_allowed_posts( $user->ID ),
-				'media'      => RPA_User_Meta_Handler::get_user_allowed_media( $user->ID ),
-				'schedule'   => RPA_User_Meta_Handler::get_user_access_schedule( $user->ID ),
+				'pages'      => SFAccess_User_Meta_Handler::get_user_allowed_pages( $user->ID ),
+				'posts'      => SFAccess_User_Meta_Handler::get_user_allowed_posts( $user->ID ),
+				'media'      => SFAccess_User_Meta_Handler::get_user_allowed_media( $user->ID ),
+				'schedule'   => SFAccess_User_Meta_Handler::get_user_access_schedule( $user->ID ),
 			);
 
 			// Get custom post types
-			$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+			$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 			foreach ( $enabled_types as $post_type ) {
 				if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 					continue;
 				}
-				$user_data[ $post_type ] = RPA_User_Meta_Handler::get_user_allowed_content( $user->ID, $post_type );
+				$user_data[ $post_type ] = SFAccess_User_Meta_Handler::get_user_allowed_content( $user->ID, $post_type );
 			}
 
 			// Get taxonomies
-			$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+			$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 			foreach ( $enabled_taxonomies as $taxonomy ) {
-				$user_data[ 'tax_' . $taxonomy ] = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user->ID, $taxonomy );
+				$user_data[ 'tax_' . $taxonomy ] = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user->ID, $taxonomy );
 			}
 
 			$data['user_access'][ $user->user_login ] = $user_data;
@@ -148,13 +148,13 @@ class RPA_Export_Import {
 	public function import_data( $data ) {
 		// Import settings
 		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
-			RPA_Settings::save_settings( $data['settings'] );
+			SFAccess_Settings::save_settings( $data['settings'] );
 		}
 
 		// Import templates
 		if ( isset( $data['templates'] ) && is_array( $data['templates'] ) ) {
 			foreach ( $data['templates'] as $template_id => $template ) {
-				RPA_Access_Templates::save_template( $template_id, $template );
+				SFAccess_Access_Templates::save_template( $template_id, $template );
 			}
 		}
 
@@ -175,22 +175,22 @@ class RPA_Export_Import {
 
 				// Import pages
 				if ( isset( $user_data['pages'] ) ) {
-					RPA_User_Meta_Handler::set_user_allowed_pages( $user->ID, $user_data['pages'] );
+					SFAccess_User_Meta_Handler::set_user_allowed_pages( $user->ID, $user_data['pages'] );
 				}
 
 				// Import posts
 				if ( isset( $user_data['posts'] ) ) {
-					RPA_User_Meta_Handler::set_user_allowed_posts( $user->ID, $user_data['posts'] );
+					SFAccess_User_Meta_Handler::set_user_allowed_posts( $user->ID, $user_data['posts'] );
 				}
 
 				// Import media
 				if ( isset( $user_data['media'] ) ) {
-					RPA_User_Meta_Handler::set_user_allowed_media( $user->ID, $user_data['media'] );
+					SFAccess_User_Meta_Handler::set_user_allowed_media( $user->ID, $user_data['media'] );
 				}
 
 				// Import schedule
 				if ( isset( $user_data['schedule'] ) && is_array( $user_data['schedule'] ) ) {
-					RPA_User_Meta_Handler::set_user_access_schedule(
+					SFAccess_User_Meta_Handler::set_user_access_schedule(
 						$user->ID,
 						$user_data['schedule']['start_date'] ?? null,
 						$user_data['schedule']['end_date'] ?? null
@@ -198,22 +198,22 @@ class RPA_Export_Import {
 				}
 
 				// Import custom post types
-				$enabled_types = RPA_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
+				$enabled_types = SFAccess_Settings::get( 'enabled_post_types', array( 'page', 'post' ) );
 				foreach ( $enabled_types as $post_type ) {
 					if ( in_array( $post_type, array( 'page', 'post' ), true ) ) {
 						continue;
 					}
 					if ( isset( $user_data[ $post_type ] ) ) {
-						RPA_User_Meta_Handler::set_user_allowed_content( $user->ID, $post_type, $user_data[ $post_type ] );
+						SFAccess_User_Meta_Handler::set_user_allowed_content( $user->ID, $post_type, $user_data[ $post_type ] );
 					}
 				}
 
 				// Import taxonomies
-				$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+				$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 				foreach ( $enabled_taxonomies as $taxonomy ) {
 					$key = 'tax_' . $taxonomy;
 					if ( isset( $user_data[ $key ] ) ) {
-						RPA_User_Meta_Handler::set_user_allowed_taxonomy_terms( $user->ID, $taxonomy, $user_data[ $key ] );
+						SFAccess_User_Meta_Handler::set_user_allowed_taxonomy_terms( $user->ID, $taxonomy, $user_data[ $key ] );
 					}
 				}
 			}
@@ -229,9 +229,9 @@ class RPA_Export_Import {
 	 */
 	public static function get_export_url() {
 		return wp_nonce_url(
-			admin_url( 'options-general.php?page=secure-freelancer-access&rpa_export=1' ),
-			'rpa_export',
-			'rpa_export_nonce'
+			admin_url( 'options-general.php?page=secure-freelancer-access&sfaccess_export=1' ),
+			'sfaccess_export',
+			'sfaccess_export_nonce'
 		);
 	}
 }

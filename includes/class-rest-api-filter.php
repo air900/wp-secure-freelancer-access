@@ -1,6 +1,6 @@
 <?php
 /**
- * Class RPA_REST_API_Filter
+ * Class SFAccess_REST_API_Filter
  * Handles REST API protection for restricted users.
  */
 
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class RPA_REST_API_Filter {
+class SFAccess_REST_API_Filter {
 
 	/**
 	 * Constructor.
@@ -37,7 +37,7 @@ class RPA_REST_API_Filter {
 	 * Register REST filters for custom post types.
 	 */
 	private function register_cpt_filters() {
-		$enabled_types = RPA_Settings::get_all_enabled_post_types();
+		$enabled_types = SFAccess_Settings::get_all_enabled_post_types();
 
 		foreach ( $enabled_types as $post_type ) {
 			// Skip built-in types (already registered above)
@@ -68,7 +68,7 @@ class RPA_REST_API_Filter {
 	 */
 	public function filter_rest_query( $args, $request ) {
 		// Don't filter for non-restricted users
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return $args;
 		}
 
@@ -80,7 +80,7 @@ class RPA_REST_API_Filter {
 		$post_type = isset( $args['post_type'] ) ? $args['post_type'] : 'post';
 
 		// Check if this post type is enabled for restriction
-		if ( ! RPA_Settings::is_post_type_enabled( $post_type ) ) {
+		if ( ! SFAccess_Settings::is_post_type_enabled( $post_type ) ) {
 			return $args;
 		}
 
@@ -115,7 +115,7 @@ class RPA_REST_API_Filter {
 	 */
 	public function filter_rest_response( $response, $post, $request ) {
 		// Don't filter for non-restricted users
-		if ( ! RPA_Settings::is_current_user_restricted() ) {
+		if ( ! SFAccess_Settings::is_current_user_restricted() ) {
 			return $response;
 		}
 
@@ -125,7 +125,7 @@ class RPA_REST_API_Filter {
 		}
 
 		// Check if this post type is enabled for restriction
-		if ( ! RPA_Settings::is_post_type_enabled( $post->post_type ) ) {
+		if ( ! SFAccess_Settings::is_post_type_enabled( $post->post_type ) ) {
 			return $response;
 		}
 
@@ -134,7 +134,7 @@ class RPA_REST_API_Filter {
 
 		if ( ! in_array( $post->ID, $allowed_ids, true ) ) {
 			return new WP_Error(
-				'rpa_forbidden',
+				'sfaccess_forbidden',
 				__( 'You do not have permission to access this content.', 'secure-freelancer-access' ),
 				array( 'status' => 403 )
 			);
@@ -155,16 +155,16 @@ class RPA_REST_API_Filter {
 
 		switch ( $post_type ) {
 			case 'page':
-				$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_pages( $user_id );
+				$allowed_ids = SFAccess_User_Meta_Handler::get_user_allowed_pages( $user_id );
 				break;
 
 			case 'post':
-				$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_posts( $user_id );
+				$allowed_ids = SFAccess_User_Meta_Handler::get_user_allowed_posts( $user_id );
 				break;
 
 			default:
 				// For custom post types, use generic method
-				$allowed_ids = RPA_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
+				$allowed_ids = SFAccess_User_Meta_Handler::get_user_allowed_content( $user_id, $post_type );
 				break;
 		}
 
@@ -183,7 +183,7 @@ class RPA_REST_API_Filter {
 	 * @return array
 	 */
 	private function get_ids_from_allowed_taxonomies( $user_id, $post_type ) {
-		$enabled_taxonomies = RPA_Settings::get( 'enabled_taxonomies', array() );
+		$enabled_taxonomies = SFAccess_Settings::get( 'enabled_taxonomies', array() );
 
 		if ( empty( $enabled_taxonomies ) ) {
 			return array();
@@ -199,7 +199,7 @@ class RPA_REST_API_Filter {
 			}
 
 			// Get allowed terms for this taxonomy
-			$allowed_terms = RPA_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
+			$allowed_terms = SFAccess_User_Meta_Handler::get_user_allowed_taxonomy_terms( $user_id, $taxonomy );
 
 			if ( empty( $allowed_terms ) ) {
 				continue;
